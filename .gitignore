@@ -43,4 +43,3 @@ next-env.d.ts
 
 # Local tool state
 .omc/
-docs/
