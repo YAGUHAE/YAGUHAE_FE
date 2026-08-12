@@ -1,0 +1,19 @@
+branch="$(git rev-parse --abbrev-ref HEAD)"
+
+# 보호 브랜치 직접 push 차단
+case "$branch" in
+  main|dev)
+    echo "❌ '$branch' 브랜치에는 직접 push 할 수 없습니다. 작업 브랜치를 만들어 PR을 올려주세요."
+    exit 1
+    ;;
+esac
+
+# 브랜치명 규칙 검사: <type>/<#이슈번호>-<설명>
+pattern='^(feat|fix|design|refactor|style|docs|test|chore|ci|perf|hotfix|release)/#[0-9]+-[a-z0-9._-]+$'
+
+if ! echo "$branch" | grep -Eq "$pattern"; then
+  echo "❌ 브랜치명 규칙에 맞지 않습니다: $branch"
+  echo "   형식: <type>/#<이슈번호>-<설명>   예) feat/#12-player-list"
+  echo "   type: feat fix design refactor style docs test chore ci perf hotfix release"
+  exit 1
+fi

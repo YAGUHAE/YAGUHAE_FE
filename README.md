@@ -35,3 +35,9 @@ cp .env.example .env.local
 | `pnpm build` | 프로덕션 빌드 |
 | `pnpm start` | 프로덕션 서버 |
 | `pnpm lint` | ESLint |
+
+## 컨벤션
+
+브랜치 전략, 커밋/PR 규칙은 [docs/git-convention.md](docs/git-convention.md)를 확인해주세요.
+
+`pnpm install` 시 husky 훅이 자동 설치되어 커밋 메시지와 브랜치명을 로컬에서 검사합니다.
