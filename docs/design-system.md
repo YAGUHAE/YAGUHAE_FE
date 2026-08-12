@@ -20,6 +20,10 @@
 | 접근성 대비 감사 (Light/Dark 21쌍) | ✅ 전부 AA 통과 |
 | 화면 목업 (P-1~P-11) | ✅ 11개 전부 |
 | 리그 어드민 목업 (A-1~A-8) | ✅ 8개 전부 (2026-08-04 v2 재작업) |
+| 브랜드 로고 (`🏷 Logo` 페이지 — 컴포넌트 4종) | ✅ 워드마크 `야구해` + 마크 「Y」 확정 → `docs/logo.md` |
+| 로고 코드 자산 (`public/*.svg` · `src/app/icon.svg` · `apple-icon.png`) | ✅ 내보내기·연결 완료 |
+| **plab 참조 패턴 레이어** (컴포넌트 5종 신규 · 토큰 2종 추가) | ✅ 완료 (2026-08-12) → §6.2 |
+| **v2 목업** (`📱 Screens v2` P-1~P-11 · `📱 Admin Screens v2` A-1~A-8) | ✅ 19개 전부. v1은 비교용으로 보존 |
 | Code Connect 매핑 | ⬜ 미착수 |
 | React 컴포넌트 구현 | ⬜ 미착수 |
 
@@ -28,6 +32,9 @@
 ## 1. 브랜드 · 제약
 
 - **비주얼 방향:** 야구 그라운드 그린. 잔디 그린(`green/500 #17854F`)이 주색, 내야 흙(`clay`)이 보조 악센트.
+- **로고:** 자산이 둘입니다 — **워드마크 `야구해`**(글자가 드러나야 하는 곳)와 **마크 「Y」**(정사각·원형에 갇히는 곳). 조형 사양·사용 규격·재현 좌표·코드 자산은 [docs/logo.md](logo.md).
+  - 둘 다 **폰트를 기울인 것이 아니라 좌표로 그린 벡터**입니다. 폰트 의존성이 없고 같은 조형(오블리크 10° · 라운드 캡)을 공유합니다.
+  - 로고에 쓰는 색은 `green/500` · `green/800` · `gray/0` · `gray/900` 4개뿐입니다. 마크의 야구공·실밥은 흰색의 불투명도 변형이라 새 색이 아닙니다.
 - **타깃:** 모바일 우선 (360dp 기준), 하단 탭 4개 구조.
 - **폰트:** **Noto Sans KR** (Regular 400 / Medium 500 / Bold 700) + 숫자 전용 **Roboto Mono**.
   - Pretendard가 Figma에 설치돼 있지 않아 Noto Sans KR을 정본으로 사용합니다. 코드의 `--font-family-sans`는 Pretendard를 폴백으로 포함합니다.
@@ -44,7 +51,7 @@ Figma 변수와 CSS 변수 이름이 **1:1로 일치**합니다. Dev Mode에서 
 | 컬렉션 | 모드 | 개수 | 내용 |
 |---|---|---|---|
 | `Primitives` | Value | 57 | green 10 · clay 5 · gray 12 · red 10 · amber 10 · blue 10 |
-| `Color` | **Light / Dark** | 57 | bg 11 · text 9 · border 6 · icon 5 · status 16 · feedback 8 · accent 2 |
+| `Color` | **Light / Dark** | 59 | bg 11 · text **11** · border 6 · icon 5 · status 16 · feedback 8 · accent 2 |
 | `Dimension` | Value | 27 | spacing 11 · radius 7 · size 7 · border-width 2 |
 | `Typography` | Value | 21 | family 2 · weight 3 · size 8 · line-height 8 |
 
@@ -126,9 +133,18 @@ Figma 텍스트 스타일 13종은 `@utility`로 정의된 `type-*` 클래스와
 Icon · Button · StatusBadge · TextField · SelectField · FilterChip · SegmentedTab ·
 BottomNav · GameCard · ReservationRow · Toast · Dialog · EmptyState · Countdown ·
 RatingScale · PositionSlot · RosterStrip · TeamSlot (deprecated)
-📱 Screens              화면 목업 P-1 ~ P-11 (360×780)
-📱 Admin Screens        리그 어드민 목업 A-1 ~ A-8 (360dp)
+📱 Screens              화면 목업 v1 P-1 ~ P-11 (360×780)   ← 보존용
+📱 Screens v2           화면 목업 v2 P-1 ~ P-11             ← 정본 (plab 참조 재설계)
+📱 Admin Screens        리그 어드민 목업 v1 A-1 ~ A-8        ← 보존용
+📱 Admin Screens v2     리그 어드민 목업 v2 A-1 ~ A-8        ← 정본
+🏷 Logo                 로고 + 사용 규격 + 컴포넌트 4종 + 적용 미리보기 + 미채택 아카이브
+——— plab 패턴 레이어 ———
+DateCell · MatchRow · InfoItem · TextLink · SectionBand
 ```
+
+**v1을 지우지 않았습니다.** v2가 무엇을 바꿨는지 나란히 놓고 볼 수 있어야 하고, 되돌릴 판단이 남아 있기 때문입니다. v2가 확정되면 v1 두 페이지와 `GameCard (deprecated)`를 함께 정리하세요.
+
+`🏷 Logo` 페이지의 로고 컴포넌트 4종(`Logo/Wordmark`·`Wordmark-Reversed`·`AppIcon`·`Lockup-Horizontal`)은 **컴포넌트 1종 = 페이지 1개 관례를 따르지 않습니다.** 로고는 UI 컴포넌트가 아니라 브랜드 자산이고 규격 문서와 같은 자리에 있어야 하기 때문입니다. 페이지 왼쪽(`x = -1400`)의 `🔩 Masters` 프레임에 원본 벡터가 있고, 모든 시안이 그것의 복제입니다.
 
 Foundations 하단의 **Dark Mode** 섹션은 컬러 섹션을 복제해 `Color` 컬렉션 모드를 Dark로 고정한 것입니다. 같은 토큰이 다크 값으로 렌더되는지 눈으로 확인할 수 있습니다.
 
@@ -146,7 +162,7 @@ Foundations 하단의 **Dark Mode** 섹션은 컬러 섹션을 복제해 `Color`
 | 6 | `FilterChip` | Selected × State | 4 | P-3 필터 바 |
 | 7 | `SegmentedTab` | Selected(T/F) | 2 | P-7 진행중/완료/종료 탭 |
 | 8 | `BottomNav` | Active 7종 — 용병 4탭 + **어드민 3탭**(`Admin-Games`·`Admin-Payments`·`Admin-League`) | 7 | 하단 탭 (역할별) |
-| 9 | `GameCard` | Status(Open/Closed/Cancelled) | 3 | P-3 리스트 카드 (선공/후공 모집 인원) |
+| 9 | ~~`GameCard`~~ | ~~Status(Open/Closed/Cancelled)~~ | ~~3~~ | **폐기** → `MatchRow` (§6.2) |
 | 10 | `ReservationRow` | HasAction(T/F) | 2 | P-7 리스트 아이템 |
 | 11 | `Toast` | Type(Success/Warning/Danger/Info) | 4 | P-1 로그인 실패, P-9 최대 2명 |
 | 12 | `Dialog` | Actions(One/Two) | 2 | P-5 제출 실패 다이얼로그 |
@@ -157,6 +173,11 @@ Foundations 하단의 **Dark Mode** 섹션은 컬러 섹션을 복제해 `Color`
 | 17 | `RosterStrip` | 칸별 BOOLEAN 10개 | 1 | P-1 히어로 (그래픽 용도) |
 | 18 | `PositionSlot` | State(Empty/Selected/Filled) × `내 신청 표시` BOOLEAN | 3 | P-4 포지션 보드, P-5 슬롯 **다중** 선택 |
 | 19 | `AdminRow` | 단일 (배지/메타/화살표 BOOLEAN 3개) | 1 | A-2 홈의 다가오는 경기 목록 |
+| 20 | `MatchRow` | Status(Open/Closed/Cancelled) | 3 | P-3 · A-3 경기 목록 행 — `GameCard` 대체 |
+| 21 | `DateCell` | State(Default/Selected) × Day(Weekday/Sat/Sun) | 6 | P-3 가로 날짜 피커 |
+| 22 | `InfoItem` | 단일 (아이콘 + 라벨 TEXT) | 1 | P-4 경기 정보 2열 그리드 |
+| 23 | `TextLink` | 단일 | 1 | P-4 주소 복사·지도 보기, P-6 계좌 복사 |
+| 24 | `SectionBand` | 단일 | 1 | 전 화면 섹션 구분 (헤어라인 대체) |
 
 **아이콘 13종:** calendar · clock · map-pin · banknote · users · bell · user · chevron-right · chevron-left · chevron-down · check · close · alert-triangle
 
@@ -313,6 +334,53 @@ Foundations 하단의 **Dark Mode** 섹션은 컬러 섹션을 복제해 `Color`
 
 ---
 
+## 6.2 plab 참조 재설계 (v2, 2026-08-12)
+
+플랩풋볼 **실제 앱**(App Store 스크린샷)을 레퍼런스로 19개 화면을 다시 만들었습니다. **레이아웃·패턴만 가져오고 컬러는 야구해 그린을 유지**했습니다 — 로고·162개 토큰·접근성 감사가 전부 그린 위에 서 있어서, 파랑으로 가면 브랜드 전체를 되돌려야 합니다.
+
+### 가져온 것
+
+| plab 패턴 | 우리 반영 | 대체한 v1 방식 |
+|---|---|---|
+| 섹션을 헤어라인이 아니라 **회색 띠**로 끊음 | `SectionBand` (높이 `spacing/sm`, `bg/subtle`) | 헤어라인 구분선 |
+| 목록 상단 **가로 날짜 피커** | `DateCell` 6변형 + P-3 스트립 | P-3 날짜 그룹 구분선 |
+| 행 좌측에 **시간이 주인공**, 우측에 상태 pill | `MatchRow` | `GameCard` (카드 + 그림자) |
+| **드롭다운형 필터 칩** (`내 지역▾`) | 기존 `FilterChip` 그대로 — 이미 `Chevron` 자식이 있었음 | 변경 없음 |
+| 상세 상단 **일시 → 구장명 → 주소 + 텍스트 링크** | P-4 블록 1 + `TextLink` | 표 형태 정보 나열 |
+| **2열 아이콘 정보 그리드** (「매치 포인트」) | `InfoItem` × 4, P-4 | 세로 나열 |
+| 그림자 없이 구분선·밴드로만 구조 | 전 화면 | `Elevation/Card` 사용 |
+
+### 가져오지 않은 것 (의도적)
+
+| plab 요소 | 뺀 이유 |
+|---|---|
+| **아이콘 카테고리 레일** (얼리버드·세미프로…) | 우리에겐 대응하는 분류 데이터가 없습니다. 빈 껍데기 컴포넌트를 만들면 화면이 레퍼런스를 흉내 내는 것 이상이 못 됩니다 |
+| **프로모 배너** | 넣을 프로모 콘텐츠가 명세에 없습니다. 자리만 잡아 두면 목업이 실제보다 풍성해 보여 판단을 흐립니다 |
+| **구장 사진 캐러셀** | 명세에 `구장 사진` 필드가 없습니다. plab 상세 화면을 시각적으로 규정하는 요소라 아쉽지만, **데이터 필드를 새로 만드는 건 제품 결정**이라 임의로 넣지 않았습니다 → 아래 |
+| **파랑 액센트** | §6.2 서두 참고 |
+
+> **⚠️ 구장 사진은 확인이 필요합니다.** plab 상세 화면의 인상은 절반이 사진에서 옵니다. 우리 P-4는 사진 없이 텍스트로 시작하므로 같은 밀도가 나오지 않습니다. `venue_image` 필드를 추가할지 결정해주세요 — 추가한다면 P-4 블록 1 위가 자리입니다.
+
+### 신규 토큰 2종
+
+`color/text/saturday`(Light `blue/500` / Dark `blue/300`) · `color/text/sunday`(Light `red/600` / Dark `red/300`).
+
+**브랜드 색이 아니라 한국 달력 관례입니다**(토=파랑·일=빨강). 날짜를 표시하는 곳에만 쓰고, 그 외에는 쓰지 않습니다. `scopes = ['TEXT_FILL']`로 제한해 뒀습니다. 일요일에 `red/500`이 아니라 `red/600`을 쓴 것은 `red/500`이 흰 배경에서 4.44:1로 AA에 못 미치기 때문입니다 — `bg/danger`에 했던 조정과 같은 이유입니다.
+
+### Button에 `Size=Small`을 추가하지 않은 이유
+
+plab의 행 우측 pill(`신청가능`·`마감임박`)은 버튼처럼 보이지만 **별도 컨트롤이 아닙니다.** 행 전체가 탭 타깃이고 pill은 상태 표시입니다. 32px짜리 Small 버튼을 만들면 44px 터치 타깃 규칙(§2-3)을 깨면서 있지도 않은 액션을 광고하게 됩니다. 그래서 `MatchRow`가 pill을 직접 들고 갑니다.
+
+**같은 이유로 `ReservationRow`의 `입금하기` 액션 표시는 손보지 않았습니다** — 다만 그쪽은 아직 아웃라인 버튼처럼 보입니다. P-7 행 전체가 P-6으로 가는 진입점이므로, 다음 손볼 때 pill로 바꾸는 게 맞습니다.
+
+### v2에서 바뀐 화면 논지
+
+- **P-3**: 행에서 날짜가 사라졌습니다. `DateCell` 스트립으로 하루를 고르고 들어오므로 행마다 날짜를 반복할 이유가 없습니다. 같은 폭에 카드 3장 대신 행 4개가 들어갑니다
+- **P-4**: 참가비 티어 4종을 4열 그리드로 짰다가 **금액이 잘려서** 명세대로 한 줄(`투수 13,000 · 포수 무료 · …`)로 되돌렸습니다. `무료`만 `setRangeFills`로 부분 강조합니다
+- **P-7**: `ReservationRow`의 카드 스타일(라운드 + 테두리)을 인스턴스에서 평탄화해 P-3의 행 언어와 통일했습니다
+
+---
+
 ## 7. 접근성
 
 Light/Dark 각 21쌍, 총 42조합의 명도 대비를 실측해 **전부 WCAG AA(4.5:1)를 통과**시켰습니다. 감사 중 아래 6개 토큰을 조정했습니다.
@@ -330,17 +398,37 @@ Light/Dark 각 21쌍, 총 42조합의 명도 대비를 실측해 **전부 WCAG A
 
 **전수 감사 결과 (컴포넌트 15종 / variant 83개):** 변수 미바인딩 fill 0 · 미바인딩 stroke 0 · 텍스트 스타일 미적용 0 · 44px 미만 터치 타겟 0 · 이름 없는 노드 0 · 깨진 alias 0 · `ALL_SCOPES` 위반 0 · code syntax 누락 0.
 
+### v2 재감사 (2026-08-12, 19화면)
+
+**자동 검사:** 부모 밖으로 넘친 노드 0 · 미바인딩 fill 0 · 텍스트 스타일 미적용 0. (눈으로 보면 놓칩니다 — P-4 참가비가 잘린 건 스크린샷으로, 나머지는 스크립트 검사로 잡았습니다.)
+
+**대비 실측에서 3건이 AA 미달로 나와 고쳤습니다.**
+
+| 조합 | 실측 | 조치 |
+|---|---|---|
+| `text/tertiary` / `bg/muted` (`MatchRow` 마감 pill) | 4.20 (L) · 4.19 (D) | pill 라벨을 `text/secondary`로 → **6.70 / 6.93** |
+| `text/tertiary` / `bg/subtle` (회색 박스 안 라벨) | 4.44 (L) | 해당 텍스트 19곳을 `text/secondary`로 → **7.08 / 11.37** |
+
+`text/tertiary` 토큰 자체는 건드리지 않았습니다. 흰 배경에서는 통과하고, 회색 면 위에서만 부족한 것이라 **토큰을 낮추면 v1 화면 전체가 흔들립니다.** 회색 면 위 라벨은 `text/secondary`를 쓰는 것으로 규칙을 정했습니다.
+
+**신규 토큰 2종은 양 모드 전부 통과:** `text/saturday` 5.08 / 6.06 · `text/sunday` 6.10 / 5.23.
+
 ---
 
 ## 8. 다음 단계
 
 1. **Figma 라이브러리 게시** → 그 후 INSTANCE_SWAP 프로퍼티 추가
-2. **화면 목업 P-1~P-11** — 만든 컴포넌트를 조립
+2. ~~**화면 목업 P-1~P-11**~~ → 완료. v2로 재설계 (§6.2)
 3. **Code Connect 매핑** — Figma 컴포넌트 ↔ React 컴포넌트 연결
 4. **React 컴포넌트 구현** — 현재 `src/`에는 토큰만 있고 컴포넌트는 없음
 5. ~~**주최자(Host) 화면설계서**~~ → 완료 (`docs/screen-design-admin.md` v2, 목업 A-1~A-8)
 6. ~~**`BottomNav` 역할별 확장**~~ → 완료. `Active`에 어드민 3변형 추가 (§6.1)
 7. **서비스 운영자(플랫폼 관리자) 화면** — 유저 정지 해제·문의 처리는 리그 어드민 권한 밖입니다. 역할이 확정되면 별도 페이지로 (어드민 명세 §6-1)
+8. ~~**로고 확정 → SVG 내보내기 → 코드 반영**~~ → 완료. A안 확정, `public/` SVG 4종 + `src/app/icon.svg` + `apple-icon.png` 연결 ([docs/logo.md](logo.md) §5)
+9. **로고 React 컴포넌트** — `currentColor` 인라인 SVG. `src/`에 컴포넌트 레이어가 생기는 시점에 4번과 함께
+10. **구장 사진(`venue_image`) 도입 여부 결정** — P-4 상세의 밀도를 좌우합니다 (§6.2)
+11. **v1 목업 정리** — v2 확정 후 `📱 Screens` · `📱 Admin Screens` · `GameCard (deprecated)` 삭제
+12. **`ReservationRow` 액션 표시를 pill로** — 지금은 아웃라인 버튼처럼 보여 별도 탭 타깃으로 오독될 여지 (§6.2)
 
 ---
 
@@ -375,4 +463,10 @@ Light/Dark 각 21쌍, 총 42조합의 명도 대비를 실측해 **전부 WCAG A
 
 10. **`setSharedPluginData`의 네임스페이스는 3자 이상**이어야 합니다. 2자를 넘기면 `The namespace must be at least 3 characters`로 스크립트 전체가 실패합니다(`use_figma`는 원자적이라 아무것도 생성되지 않습니다).
 11. **COMPONENT_SET에 variant를 `appendChild`해도 세트 경계가 자동으로 늘어나지 않습니다.** 새 변형이 세트 밖으로 삐져나가고 스크린샷에서 잘립니다. 자식들의 `x + width` / `y + height` 최댓값을 구해 `set.resize(maxR + 32, maxB + 32)`로 직접 맞추세요.
-12. **`remove()`한 노드는 되살릴 수 없습니다.** 프레임 높이를 콘텐츠에 맞추려고 FILL Spacer를 잠깐 지웠다가 다시 넣는 건 불가능합니다(`insertChild`가 "node does not exist"로 실패). 대신 **Spacer를 접었다 펴세요** — `layoutSizingVertical = 'FIXED'` → `resize(w, 1)` → 부모를 `primaryAxisSizingMode = 'AUTO'`로 측정 → 다시 `'FIXED'` + `resize` → Spacer를 `'FILL'`로 복구.
+12. **`relativeTransform`으로 전단(shear)을 걸 수 없습니다.** Figma Plugin API는 회전·이동만 지원합니다. 오블리크 로고처럼 기울어진 형태는 경로 데이터에 좌표로 구워 넣어야 합니다. 베지어는 아핀 변환 하에서 제어점만 옮기면 정확히 변환되므로 라운드 코너·타원도 깨지지 않습니다. (로고 작업 — `docs/logo.md` §6)
+13. **`counterAxisAlignItems`에 `'STRETCH'`가 없습니다.** `'MIN' | 'MAX' | 'CENTER' | 'BASELINE'`뿐입니다. 자식을 늘리려는 것이었다면 자식 쪽 `layoutAlign`/`layoutSizing*`을 씁니다.
+15. **높이가 AUTO인 프레임에 `layoutSizingVertical = 'FILL'` 자식을 두면 측정이 깨집니다.** P-2에서 푸터가 프레임 높이 밖(y=805, 높이 892)으로 밀려 잘렸는데, 자식 좌표는 정상이라 스크린샷으로만 잡힙니다. 순서를 지키세요 — **먼저 AUTO로 측정 → 뷰포트보다 짧으면 `resize()`로 FIXED 전환 → 그때 스페이서를 FILL로.** 콘텐츠가 뷰포트보다 길면 스페이서를 아예 빼야 합니다.
+16. **`query()` 셀렉터 값에 `/`를 넣을 수 없습니다.** `query('INSTANCE[name^=Row/]')`는 `unexpected character '/'`로 실패합니다. `findAll(n => n.name.startsWith('Row/'))`를 쓰세요.
+17. **`setCurrentPageAsync` 전에는 그 페이지의 `children`이 비어 보일 수 있습니다.** 다른 페이지의 자식을 필터링해 지우는 코드가 조용히 아무것도 안 지웁니다(어드민 페이지의 떠돌이 프레임이 이렇게 살아남았습니다). 대상 페이지로 전환한 뒤에 조작하세요.
+18. **`createAutoLayout`으로 만든 프레임을 어디에도 붙이지 않으면 현재 페이지의 최상위 자식으로 남습니다.** 화면 밖에 떠돌이 프레임이 생깁니다. 페이지 자식 목록을 한 번씩 검사하세요.
+14. **`remove()`한 노드는 되살릴 수 없습니다.** 프레임 높이를 콘텐츠에 맞추려고 FILL Spacer를 잠깐 지웠다가 다시 넣는 건 불가능합니다(`insertChild`가 "node does not exist"로 실패). 대신 **Spacer를 접었다 펴세요** — `layoutSizingVertical = 'FIXED'` → `resize(w, 1)` → 부모를 `primaryAxisSizingMode = 'AUTO'`로 측정 → 다시 `'FIXED'` + `resize` → Spacer를 `'FILL'`로 복구.
