@@ -14,11 +14,12 @@
 | Figma 변수 162개 (4개 컬렉션, Light/Dark 2모드) | ✅ |
 | Figma 텍스트 스타일 13종 / 이펙트 스타일 4종 | ✅ |
 | Figma 페이지 22개 (Cover · Foundations · 구분자 · 컴포넌트 18 · Screens) | ✅ |
-| Figma 컴포넌트 18종 / variant 총 92개 (`TeamSlot` 4개는 폐기 상태로 잔존) | ✅ |
+| Figma 컴포넌트 18종 / variant 총 95개 (`TeamSlot` 4개는 폐기 상태로 잔존) | ✅ |
 | 코드 토큰 (`src/app/globals.css`) — 다크모드 포함 | ✅ |
 | 코드 폰트 (`src/app/layout.tsx`) | ✅ |
 | 접근성 대비 감사 (Light/Dark 21쌍) | ✅ 전부 AA 통과 |
 | 화면 목업 (P-1~P-11) | ✅ 11개 전부 |
+| 리그 어드민 목업 (A-1~A-8) | ✅ 8개 전부 (2026-08-04 v2 재작업) |
 | Code Connect 매핑 | ⬜ 미착수 |
 | React 컴포넌트 구현 | ⬜ 미착수 |
 
@@ -126,6 +127,7 @@ Icon · Button · StatusBadge · TextField · SelectField · FilterChip · Segme
 BottomNav · GameCard · ReservationRow · Toast · Dialog · EmptyState · Countdown ·
 RatingScale · PositionSlot · RosterStrip · TeamSlot (deprecated)
 📱 Screens              화면 목업 P-1 ~ P-11 (360×780)
+📱 Admin Screens        리그 어드민 목업 A-1 ~ A-8 (360dp)
 ```
 
 Foundations 하단의 **Dark Mode** 섹션은 컬러 섹션을 복제해 `Color` 컬렉션 모드를 Dark로 고정한 것입니다. 같은 토큰이 다크 값으로 렌더되는지 눈으로 확인할 수 있습니다.
@@ -143,7 +145,7 @@ Foundations 하단의 **Dark Mode** 섹션은 컬러 섹션을 복제해 `Color`
 | 5 | `SelectField` | State(Default/Focus/Error/Disabled) | 4 | P-2 지역·포지션·급수, P-3 필터 |
 | 6 | `FilterChip` | Selected × State | 4 | P-3 필터 바 |
 | 7 | `SegmentedTab` | Selected(T/F) | 2 | P-7 진행중/완료/종료 탭 |
-| 8 | `BottomNav` | Active 4탭 | 4 | 하단 탭 |
+| 8 | `BottomNav` | Active 7종 — 용병 4탭 + **어드민 3탭**(`Admin-Games`·`Admin-Payments`·`Admin-League`) | 7 | 하단 탭 (역할별) |
 | 9 | `GameCard` | Status(Open/Closed/Cancelled) | 3 | P-3 리스트 카드 (선공/후공 모집 인원) |
 | 10 | `ReservationRow` | HasAction(T/F) | 2 | P-7 리스트 아이템 |
 | 11 | `Toast` | Type(Success/Warning/Danger/Info) | 4 | P-1 로그인 실패, P-9 최대 2명 |
@@ -154,6 +156,7 @@ Foundations 하단의 **Dark Mode** 섹션은 컬러 섹션을 복제해 `Color`
 | 16 | ~~`TeamSlot`~~ | ~~State(Available/Selected/Full/Readonly)~~ | ~~4~~ | **폐기** → `PositionSlot` (§5) |
 | 17 | `RosterStrip` | 칸별 BOOLEAN 10개 | 1 | P-1 히어로 (그래픽 용도) |
 | 18 | `PositionSlot` | State(Empty/Selected/Filled) × `내 신청 표시` BOOLEAN | 3 | P-4 포지션 보드, P-5 슬롯 **다중** 선택 |
+| 19 | `AdminRow` | 단일 (배지/메타/화살표 BOOLEAN 3개) | 1 | A-2 홈의 다가오는 경기 목록 |
 
 **아이콘 13종:** calendar · clock · map-pin · banknote · users · bell · user · chevron-right · chevron-left · chevron-down · check · close · alert-triangle
 
@@ -264,6 +267,52 @@ Foundations 하단의 **Dark Mode** 섹션은 컬러 섹션을 복제해 `Color`
 
 ---
 
+## 6.1 리그 어드민 목업 (A-1~A-8)
+
+`📱 Admin Screens` 페이지. 명세는 `docs/screen-design-admin.md` (v2)입니다.
+
+> **2026-08-04 v2 재작업.** 명세가 HOST/ADMIN 2역할에서 **리그당 1계정인 리그 어드민 단일 역할**로 바뀌면서 목업도 다시 만들었습니다. 문의함·문의 상세·유저 관리·유저 상세 4개 화면은 리그 권한을 넘어서므로 **삭제**했고, 로그인과 입금 확인 2개를 새로 만들었습니다. 나머지는 재번호·재구성했습니다.
+
+**같은 디자인 시스템을 그대로 씁니다.** 360dp·44px 터치 타겟·같은 토큰. 데스크톱 콘솔을 만들지 않았으므로 Table·Sidebar 같은 신규 패턴이 없고, **새 토큰은 0개**입니다.
+
+| 화면 | 높이 | 요점 |
+|---|---|---|
+| A-1 어드민 로그인 | 780 | **카카오 버튼이 없습니다.** 계정이 사람이 아니라 리그에 귀속돼 운영자 교체 시 넘겨받아야 하므로 ID/PW로 분리 |
+| A-2 홈 | 780 | 처리 대기 2줄(입금 확인·오늘·내일 경기)이 그대로 진입점. **0건도 숨기지 않고 `0`으로 표시** — 자리가 사라지면 "할 일이 없는 것"과 "기능이 없는 것"이 구분되지 않음 |
+| A-3 경기 목록 | 780 | `GameCard` 재사용 + 카드 아래 `입금 확인 N건`을 `text/brand`로. 루트 탭이므로 **뒤로가기 없음** |
+| A-4 경기 등록 | 1329 | **일시가 첫 필드.** "며칠에 할 건지"가 이 화면의 첫 질문입니다. 상단에 `직전 경기와 동일하게` — 리그는 같은 구장에서 정기적으로 도는데 매번 11×2 슬롯을 확인시키면 등록 자체가 부담이 됨 |
+| A-5 경기 상세 | 1495 | 용병 P-4의 **포지션 보드를 그대로 재사용**. 아래에 예약 카드(= 예약 1건, 슬롯 목록 펼침). 하단 `출석 체크` |
+| A-6 입금 확인 ★ | 1568 | **이 페이지의 중심.** 아래 별도 항목 |
+| A-7 출석 체크 | 1000 | **슬롯 순서대로** 나열 — 현장에서 보는 건 라인업이므로. 대리 신청분에 `대리` 배지 |
+| A-8 리그 설정 | 1005 | 입금 계좌(용병 P-6에 그대로 나가는 값) + 티어별 참가비 4종의 정본 + 계정 |
+
+### A-6 입금 확인의 레이아웃 근거
+
+은행 앱과 **번갈아 보며 대조하는** 화면입니다. 그 전제가 레이아웃을 전부 결정했습니다.
+
+- **카드 제목이 닉네임이 아니라 입금자명입니다.** 은행 내역에 닉네임은 없습니다. 입금자명과 금액을 첫 행 양 끝에 두고, 금액은 `Numeric/Price`(모노 + tabular)로 자릿수를 맞춥니다
+- **기본 필터가 전체 경기 합산, 정렬은 신청 시각순.** 은행 내역은 경기 단위로 오지 않으므로, 이름 하나를 찾자고 경기를 옮겨 다니게 하면 안 됩니다
+- **`RESERVED`(아직 입금 전)도 같은 화면에 있습니다.** 입금은 했는데 앱에서 체크를 잊은 사람을 찾을 데가 있어야 합니다. `아직 입금 전` 섹션으로 분리하고 만료 임박 건은 `feedback/warning/text`로
+- **버튼이 `승인`이 아니라 `입금 완료`입니다.** 어드민의 판단은 돈이 들어왔는지 하나뿐이고, 확인되면 곧 확정입니다. 사람을 심사하는 화면이 아니라 장부를 맞추는 화면이라는 게 문구에서 드러나야 합니다
+- **0원 예약**(포수 무료)은 `입금 불필요` 배지 + `거절` 버튼 없이 최상단에. 배지는 `feedback/info` 쌍을 쓰는 소형 프레임으로, A-7의 `대리` 배지와 같은 패턴입니다
+
+### `PositionSlot` Empty 변형의 어드민 오버라이드
+
+용병 화면에서 `Empty`는 **"신청 가능"(brand + chevron)** 입니다 — 탭하면 신청으로 가는 진입점이니까요. 어드민은 빈 슬롯을 탭할 수 없으므로 그대로 쓰면 있지도 않은 액션을 광고하게 됩니다. A-5에서는 인스턴스 단위로:
+
+- 값 → `비어 있음`, 텍스트 fill을 `text/tertiary`로 오버라이드
+- 내부 chevron 노드를 `visible = false`
+
+컴포넌트에 `Readonly` variant를 추가하지 않은 이유: 상태가 늘어나는 게 아니라 **같은 상태를 다른 역할이 다르게 볼 뿐**이고, 지금 쓰이는 곳이 A-5 한 곳입니다. 어드민 화면이 더 늘면 variant로 승격하세요.
+
+### 하단 탭
+
+**v1의 "라벨만 덮어쓰기"를 폐기하고 `BottomNav`에 정식 변형 3개를 추가했습니다.** 어드민은 경기 · 입금 확인 · 리그 3탭이고 아이콘은 `calendar` · `banknote` · `users`입니다.
+
+`Role`(Player/Admin) 프로퍼티를 새로 만들지 않고 **`Active` 단일 프로퍼티에 값 3개를 더한** 이유: Active 값이 역할마다 다르므로 두 프로퍼티로 쪼개면 `Role=Admin, Active=MyPage` 같은 존재하지 않는 조합이 생기고 변형 피커가 "이 조합은 없습니다" 상태에 빠집니다. 단일 프로퍼티 7변형이면 유효하지 않은 조합 자체가 없습니다.
+
+---
+
 ## 7. 접근성
 
 Light/Dark 각 21쌍, 총 42조합의 명도 대비를 실측해 **전부 WCAG AA(4.5:1)를 통과**시켰습니다. 감사 중 아래 6개 토큰을 조정했습니다.
@@ -289,7 +338,9 @@ Light/Dark 각 21쌍, 총 42조합의 명도 대비를 실측해 **전부 WCAG A
 2. **화면 목업 P-1~P-11** — 만든 컴포넌트를 조립
 3. **Code Connect 매핑** — Figma 컴포넌트 ↔ React 컴포넌트 연결
 4. **React 컴포넌트 구현** — 현재 `src/`에는 토큰만 있고 컴포넌트는 없음
-5. **주최자(Host) 화면설계서** → 그에 맞는 컴포넌트 확장
+5. ~~**주최자(Host) 화면설계서**~~ → 완료 (`docs/screen-design-admin.md` v2, 목업 A-1~A-8)
+6. ~~**`BottomNav` 역할별 확장**~~ → 완료. `Active`에 어드민 3변형 추가 (§6.1)
+7. **서비스 운영자(플랫폼 관리자) 화면** — 유저 정지 해제·문의 처리는 리그 어드민 권한 밖입니다. 역할이 확정되면 별도 페이지로 (어드민 명세 §6-1)
 
 ---
 
@@ -302,4 +353,26 @@ Light/Dark 각 21쌍, 총 42조합의 명도 대비를 실측해 **전부 WCAG A
 5. **`combineAsVariants` 후 variant가 전부 (0,0)에 겹칩니다.** 수동 그리드 배치가 필요합니다.
 6. **`setBoundVariableForPaint`는 새 paint를 반환합니다.** 반환값을 다시 대입해야 적용됩니다.
 7. **Tailwind v4 `@theme`는 미사용 토큰을 트리셰이킹합니다.** 디자인 시스템은 `@theme static`을 쓰고, 빌드 산출물 CSS를 grep해서 실제 방출을 확인하세요.
-8. **`setTextStyleIdAsync` 직후 같은 스크립트에서 건 fill 변수 바인딩은 렌더에 반영되지 않습니다.** `node.boundVariables`에는 alias가 정상으로 들어가 있는데 화면에는 fallback 색(생성 시 넘긴 리터럴)이 그려집니다. `PositionSlot`의 "신청 가능"이 회색으로 나온 원인이었습니다. **텍스트 스타일을 바꾼 뒤에는 다음 `use_figma` 호출에서 `fills`를 다시 대입**하세요. 데이터만 보면 정상이라 스크린샷 없이는 못 잡습니다.
+8. **`setTextStyleIdAsync` 직후 같은 스크립트에서 건 fill 변수 바인딩은 렌더에 반영되지 않습니다.** `node.boundVariables`에는 alias가 정상으로 들어가 있는데 화면에는 fallback 색(생성 시 넘긴 리터럴)이 그려집니다. `PositionSlot`의 "신청 가능"이 회색으로 나온 원인이었습니다. 데이터만 보면 정상이라 스크린샷 없이는 못 잡습니다. → **9번이 근본 해법입니다.**
+9. **`setBoundVariableForPaint`에 넘기는 리터럴 색을 `{0,0,0}`으로 두지 마세요.** 8번의 fallback이 걸리는 순간 그 리터럴이 그대로 그려집니다. 변수의 현재 모드 값을 먼저 풀어서 리터럴로 넣으면 바인딩이 렌더되든 fallback이 걸리든 **양쪽 다 올바른 색**이 나옵니다. 어드민 v2 작업은 아래 헬퍼로 전 화면을 통과시켰습니다(미바인딩 fill 0개).
+
+   ```js
+   async function resolveColor(v) {                    // alias 체인을 끝까지 따라감
+     let cur = v, guard = 0;
+     while (guard++ < 10) {
+       const col = await figma.variables.getVariableCollectionByIdAsync(cur.variableCollectionId);
+       const val = cur.valuesByMode[col.defaultModeId];
+       if (val && val.type === 'VARIABLE_ALIAS') { cur = await figma.variables.getVariableByIdAsync(val.id); continue; }
+       return val;
+     }
+   }
+   async function P(name) {                            // 리터럴 + 바인딩을 함께 가진 paint
+     const c = await resolveColor(V[name]);
+     return figma.variables.setBoundVariableForPaint(
+       { type: 'SOLID', color: { r: c.r, g: c.g, b: c.b } }, 'color', V[name]);
+   }
+   ```
+
+10. **`setSharedPluginData`의 네임스페이스는 3자 이상**이어야 합니다. 2자를 넘기면 `The namespace must be at least 3 characters`로 스크립트 전체가 실패합니다(`use_figma`는 원자적이라 아무것도 생성되지 않습니다).
+11. **COMPONENT_SET에 variant를 `appendChild`해도 세트 경계가 자동으로 늘어나지 않습니다.** 새 변형이 세트 밖으로 삐져나가고 스크린샷에서 잘립니다. 자식들의 `x + width` / `y + height` 최댓값을 구해 `set.resize(maxR + 32, maxB + 32)`로 직접 맞추세요.
+12. **`remove()`한 노드는 되살릴 수 없습니다.** 프레임 높이를 콘텐츠에 맞추려고 FILL Spacer를 잠깐 지웠다가 다시 넣는 건 불가능합니다(`insertChild`가 "node does not exist"로 실패). 대신 **Spacer를 접었다 펴세요** — `layoutSizingVertical = 'FIXED'` → `resize(w, 1)` → 부모를 `primaryAxisSizingMode = 'AUTO'`로 측정 → 다시 `'FIXED'` + `resize` → Spacer를 `'FILL'`로 복구.
