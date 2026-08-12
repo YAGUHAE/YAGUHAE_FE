@@ -35,6 +35,7 @@ cp .env.example .env.local
 | `pnpm build` | 프로덕션 빌드 |
 | `pnpm start` | 프로덕션 서버 |
 | `pnpm lint` | ESLint |
+| `pnpm typecheck` | 라우트 타입 생성 후 타입 검사 |
 
 ## 컨벤션
 

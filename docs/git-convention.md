@@ -144,15 +144,19 @@ chore: husky, commitlint 설정 추가
 
 ### 제목
 
-커밋과 동일한 형식을 쓰되, 이슈 번호를 붙입니다.
+커밋 제목과 동일한 형식을 씁니다.
 
 ```
-<type>: <제목> (#<이슈번호>)
+<type>: <제목>
 ```
 
 ```
-feat: 선수 목록 화면 구현 (#12)
+feat: 선수 목록 화면 구현
 ```
+
+번호를 직접 붙이지 않습니다. Squash 머지 시 GitHub이 제목 뒤에 **PR 번호를 자동으로 덧붙이기** 때문에, 직접 쓰면 `feat: 선수 목록 화면 구현 (#12) (#13)`처럼 번호가 두 번 붙습니다. 이슈 연결은 본문의 `Closes #12`가 담당합니다.
+
+> PR 제목은 CI에서도 검사합니다. Squash 머지 후 `dev`에 남는 커밋 메시지가 곧 이 제목이기 때문입니다.
 
 ### 규칙
 
@@ -185,7 +189,11 @@ feat: 선수 목록 화면 구현 (#12)
 
 ## 5. 자동 검사
 
-husky 훅으로 로컬에서 컨벤션을 검사합니다. 레포를 clone 한 뒤 `pnpm install`만 하면 자동으로 설치됩니다 (`prepare` 스크립트).
+검사는 2단계입니다. **로컬 훅이 1차, CI가 최종 게이트**입니다.
+
+### 로컬 (husky)
+
+레포를 clone 한 뒤 `pnpm install`만 하면 자동으로 설치됩니다 (`prepare` 스크립트).
 
 | 훅 | 검사 내용 |
 | --- | --- |
@@ -196,11 +204,34 @@ husky 훅으로 로컬에서 컨벤션을 검사합니다. 레포를 clone 한 �
 
 훅을 건너뛰어야 하는 예외 상황에서는 `--no-verify`를 쓸 수 있지만, 원칙적으로 사용하지 않습니다.
 
+### CI (GitHub Actions)
+
+`main`/`dev`로 향하는 PR과 두 브랜치의 push에서 실행됩니다. 정의는 `.github/workflows/ci.yml`에 있습니다.
+
+| Job | 검사 내용 | 로컬 재현 |
+| --- | --- | --- |
+| `commitlint` | PR의 커밋 메시지 + **PR 제목** 형식 검사 | `pnpm exec commitlint --from origin/dev --to HEAD` |
+| `lint` | ESLint | `pnpm lint` |
+| `typecheck` | `next typegen` 후 `tsc --noEmit` | `pnpm typecheck` |
+| `build` | 프로덕션 빌드 | `pnpm build` |
+
+로컬 훅은 `--no-verify`로 우회할 수 있고 `pnpm install`을 하지 않은 사람에게는 적용되지 않으므로, 실제 강제는 CI가 담당합니다.
+
+### 배포 (Vercel)
+
+배포는 Actions가 아니라 **Vercel Git 연동**이 담당합니다. 별도 워크플로우나 토큰이 없습니다.
+
+| 브랜치 | 결과 |
+| --- | --- |
+| `main` | 프로덕션 배포 |
+| `dev` · 모든 PR | 프리뷰 배포 (Vercel 봇이 PR에 URL을 남깁니다) |
+
 ### GitHub 설정 (권장)
 
-레포 Settings에서 아래를 함께 적용하면 로컬 훅을 우회한 push도 막을 수 있습니다.
+레포 Settings에서 아래를 함께 적용해야 위 검사들이 실제로 강제됩니다.
 
 - `main`, `dev`에 **Branch protection rule** 추가
   - Require a pull request before merging (Require approvals: 1)
+  - Require status checks to pass → `commitlint`, `lint`, `typecheck`, `build` 지정
   - Do not allow bypassing the above settings
 - General → Pull Requests → **Automatically delete head branches** 체크
