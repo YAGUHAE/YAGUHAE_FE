@@ -51,7 +51,8 @@ export default function UiGalleryPage() {
       <header className="flex flex-col gap-sm">
         <h1 className="type-display-lg text-text-default">야구해 공용 컴포넌트</h1>
         <p className="type-body-md text-text-secondary">
-          Figma 컴포넌트 30종 → React. 레이아웃 셸은{" "}
+          Figma 컴포넌트 30종 → React. props · 테마 · 뷰포트를 바꿔 보려면{" "}
+          <TextLink href="/dev/ui/playground">플레이그라운드</TextLink>, 레이아웃 셸은{" "}
           <TextLink href="/dev/ui/player">용병 셸</TextLink> ·{" "}
           <TextLink href="/dev/ui/admin">어드민 셸</TextLink>에서 확인합니다.
         </p>
