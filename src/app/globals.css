@@ -81,6 +81,10 @@
   --color-blue-800: #14294f;
   --color-blue-900: #0c1930;
 
+  /* Kakao — P-1 로그인 버튼 전용 (카카오 브랜드 가이드 색) */
+  --color-kakao-yellow: #fee500;
+  --color-kakao-label: #191600;
+
   /* --- Semantic · Background ------------------------------------------- */
   --color-bg-default: var(--color-gray-0);
   --color-bg-subtle: var(--color-gray-50);
@@ -94,6 +98,11 @@
   /* red-500이 아닌 red-600 — 흰 글씨 대비 4.44:1로 AA 미달이었음 */
   --color-bg-danger: var(--color-red-600);
   --color-bg-danger-hover: var(--color-red-700);
+  /* P-1 히어로 전면에만 쓰는 진한 그라운드 그린 */
+  --color-bg-brand-strong: var(--color-green-800);
+  /* 데스크톱에서 처음 생기는 hover. subtle/muted 어느 쪽과도 값이 달라 별도 토큰 (responsive-design.md §4) */
+  --color-bg-hover: var(--color-gray-50);
+  --color-bg-kakao: var(--color-kakao-yellow);
 
   /* --- Semantic · Text -------------------------------------------------- */
   --color-text-default: var(--color-gray-900);
@@ -106,6 +115,11 @@
   --color-text-danger: var(--color-red-600);
   --color-text-on-brand: var(--color-gray-0);
   --color-text-on-danger: var(--color-gray-0);
+  --color-text-on-brand-strong: var(--color-gray-0);
+  --color-text-on-kakao: var(--color-kakao-label);
+  /* 한국 달력 관례(토=파랑·일=빨강). 날짜 표시에만 씁니다 — design-system.md §6.2 */
+  --color-text-saturday: var(--color-blue-500);
+  --color-text-sunday: var(--color-red-600);
 
   /* --- Semantic · Border ------------------------------------------------ */
   --color-border-subtle: var(--color-gray-100);
@@ -167,6 +181,8 @@
   --spacing-3xl: 32px;
   --spacing-4xl: 40px;
   --spacing-5xl: 48px;
+  /* 콘솔 섹션 간격 (responsive-design.md §4) */
+  --spacing-6xl: 64px;
 
   /* --- Radius -------------------------------------------------------------- */
   --radius-none: 0px;
@@ -186,6 +202,26 @@
   --size-control-md: 44px;
   --size-control-lg: 52px;
   --size-touch-min: 44px;
+
+  /* --- Size · 반응형 레이어 (responsive-design.md §4) ------------------------ */
+  --size-container-content: 640px;   /* md 본문 최대폭 */
+  --size-container-console: 1440px;  /* lg 콘솔 최대폭 */
+  --size-sidenav-rail: 72px;         /* SideNav Rail (md) */
+  --size-sidenav-full: 240px;        /* SideNav Full (lg) */
+  --size-topnav-height: 64px;        /* TopNav (용병 lg) */
+
+  /* max-w-content · max-w-console 유틸리티용 별칭 */
+  --container-content: var(--size-container-content);
+  --container-console: var(--size-container-console);
+  /* lg 본문 열 976 = 1280 − 사이드바 240 − 패딩 64. P-4·P-5 split 컨테이너도 같은 값 (responsive-design.md §2·§7.2) */
+  --container-wide: 976px;
+
+  /* --- Breakpoints (responsive-design.md §1) ----------------------------------
+     Tailwind 기본값(sm 640 · lg 1024 …)을 지우고 md · lg 둘만 둡니다.
+     코드에서 쓰는 접두사는 md: 와 lg: 뿐입니다. 세 번째가 필요하면 문서를 먼저 고치세요. */
+  --breakpoint-*: initial;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1280px;
 
   /* --- Border width --------------------------------------------------------- */
   --border-width-thin: 1px;
@@ -258,6 +294,8 @@
     --color-bg-overlay: var(--color-gray-1000);
     --color-bg-danger: var(--color-red-600);
     --color-bg-danger-hover: var(--color-red-700);
+    --color-bg-brand-strong: var(--color-green-900);
+    --color-bg-hover: var(--color-gray-700);
 
     /* Text — brand가 green-400으로 밝아지므로 그 위 텍스트는 어두워야 한다 */
     --color-text-default: var(--color-gray-50);
@@ -269,6 +307,8 @@
     --color-text-danger: var(--color-red-300);
     --color-text-on-brand: var(--color-gray-900);
     --color-text-on-danger: var(--color-gray-0);
+    --color-text-saturday: var(--color-blue-300);
+    --color-text-sunday: var(--color-red-300);
 
     /* Border */
     --color-border-subtle: var(--color-gray-800);
