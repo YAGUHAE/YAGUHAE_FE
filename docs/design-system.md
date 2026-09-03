@@ -14,7 +14,7 @@
 | Figma 변수 162개 (4개 컬렉션, Light/Dark 2모드) | ✅ |
 | Figma 텍스트 스타일 13종 / 이펙트 스타일 4종 | ✅ |
 | Figma 페이지 22개 (Cover · Foundations · 구분자 · 컴포넌트 18 · Screens) | ✅ |
-| Figma 컴포넌트 18종 / variant 총 95개 (`TeamSlot` 4개는 폐기 상태로 잔존) | ✅ |
+| Figma 컴포넌트 30종 / variant 총 114개 (`TeamSlot` 4개는 폐기 상태로 잔존) | ✅ |
 | 코드 토큰 (`src/app/globals.css`) — 다크모드 포함 | ✅ |
 | 코드 폰트 (`src/app/layout.tsx`) | ✅ |
 | 접근성 대비 감사 (Light/Dark 21쌍) | ✅ 전부 AA 통과 |
@@ -24,8 +24,11 @@
 | 로고 코드 자산 (`public/*.svg` · `src/app/icon.svg` · `apple-icon.png`) | ✅ 내보내기·연결 완료 |
 | **plab 참조 패턴 레이어** (컴포넌트 5종 신규 · 토큰 2종 추가) | ✅ 완료 (2026-08-12) → §6.2 |
 | **v2 목업** (`📱 Screens v2` P-1~P-11 · `📱 Admin Screens v2` A-1~A-8) | ✅ 19개 전부. v1은 비교용으로 보존 |
+| **반응형 레이어 — 어드민 콘솔** (컴포넌트 5종 · 변수 9개 · 화면 16개) | ✅ 완료 (2026-09-03) → [docs/responsive-design.md](responsive-design.md) |
+| **반응형 레이어 — 용병** (`TopNav` 1종 · 화면 22개) | ✅ 완료 (2026-09-03) → [docs/responsive-design.md §7](responsive-design.md) |
 | Code Connect 매핑 | ⬜ 미착수 |
-| React 컴포넌트 구현 | ⬜ 미착수 |
+| React 컴포넌트 구현 | ✅ 공용 컴포넌트 30종 (#13). 화면(P-1~P-11 · A-1~A-8)은 미착수 |
+| `globals.css`에 반응형 토큰 9개 반영 | ✅ 완료 (#13) |
 
 ---
 
@@ -50,10 +53,12 @@ Figma 변수와 CSS 변수 이름이 **1:1로 일치**합니다. Dev Mode에서 
 
 | 컬렉션 | 모드 | 개수 | 내용 |
 |---|---|---|---|
-| `Primitives` | Value | 57 | green 10 · clay 5 · gray 12 · red 10 · amber 10 · blue 10 |
-| `Color` | **Light / Dark** | 59 | bg 11 · text **11** · border 6 · icon 5 · status 16 · feedback 8 · accent 2 |
-| `Dimension` | Value | 27 | spacing 11 · radius 7 · size 7 · border-width 2 |
+| `Primitives` | Value | 59 | green 10 · clay 5 · gray 12 · red 10 · amber 10 · blue 10 · kakao 2 |
+| `Color` | **Light / Dark** | 64 | bg **13** · text 13 · border 6 · icon 5 · status 16 · feedback 8 · accent 2 |
+| `Dimension` | Value | **35** | spacing **12** · radius 7 · size **12** · border-width 2 · breakpoint **2** |
 | `Typography` | Value | 21 | family 2 · weight 3 · size 8 · line-height 8 |
+
+> 2026-09-03 실측으로 맞췄습니다. 이 표는 이전에 Primitives 57 · Color 59 · Dimension 27로 적혀 있었는데 실제와 달랐습니다 — 카카오 primitive 2종, 토·일 텍스트 색 2종 등이 추가되면서 표만 뒤처져 있었습니다. 반응형 레이어에서 Dimension 8개(`breakpoint/md`·`lg`, `size/container-content`·`container-console`·`sidenav-rail`·`sidenav-full`·`topnav-height`, `spacing/6xl`)와 Color 1개(`bg/hover`)를 더했습니다.
 
 ### 규칙
 
@@ -140,6 +145,12 @@ RatingScale · PositionSlot · RosterStrip · TeamSlot (deprecated)
 🏷 Logo                 로고 + 사용 규격 + 컴포넌트 4종 + 적용 미리보기 + 미채택 아카이브
 ——— plab 패턴 레이어 ———
 DateCell · MatchRow · InfoItem · TextLink · SectionBand
+——— 반응형 레이어 ———
+SideNav · PageHeader · TableHeader · TableRow · StatTile · TopNav
+📱 Admin Screens v2 @768    어드민 태블릿 A-1~A-8 (레일 사이드바 + 640 중앙 정렬)
+📱 Admin Screens v2 @1280   어드민 데스크톱 콘솔 A-1~A-8
+📱 Screens v2 @768          용병 태블릿 P-1~P-11 (BottomNav 유지 + 640 중앙 정렬)
+📱 Screens v2 @1280         용병 데스크톱 P-1~P-11 (TopNav + 640 중앙 · P-4/P-5는 split)
 ```
 
 **v1을 지우지 않았습니다.** v2가 무엇을 바꿨는지 나란히 놓고 볼 수 있어야 하고, 되돌릴 판단이 남아 있기 때문입니다. v2가 확정되면 v1 두 페이지와 `GameCard (deprecated)`를 함께 정리하세요.
@@ -178,6 +189,14 @@ Foundations 하단의 **Dark Mode** 섹션은 컬러 섹션을 복제해 `Color`
 | 22 | `InfoItem` | 단일 (아이콘 + 라벨 TEXT) | 1 | P-4 경기 정보 2열 그리드 |
 | 23 | `TextLink` | 단일 | 1 | P-4 주소 복사·지도 보기, P-6 계좌 복사 |
 | 24 | `SectionBand` | 단일 | 1 | 전 화면 섹션 구분 (헤어라인 대체) |
+| 25 | `SideNav` | Size(Rail/Full) × Active(Games/Payments/League) | 6 | 어드민 `md`·`lg` 전 화면 |
+| 26 | `PageHeader` | Actions(None/One/Two) | 3 | 콘솔 본문 최상단 |
+| 27 | `TableHeader` | 단일 (열 라벨 TEXT × 6) | 1 | A-3 · A-6 `lg` |
+| 28 | `TableRow` | State(Default/Hover/Selected) | 3 | A-3 · A-6 `lg` |
+| 29 | `StatTile` | Tone(Default/Attention) | 2 | A-2 `lg` 상단 지표 |
+| 30 | `TopNav` | Active(Games/Reservations/Notifications/MyPage) + `배지 표시` BOOLEAN · `배지 값` TEXT | 4 | 용병 `lg` 전 화면 (P-1 · P-2 제외) — `BottomNav` 대체 |
+
+25~30은 **반응형 레이어**입니다. 설계 근거·열 폭·브레이크포인트는 [docs/responsive-design.md](responsive-design.md)에 있습니다. base(360)에서는 쓰지 않습니다 — 같은 데이터의 모바일 표현은 `BottomNav`·`MatchRow`·`AdminRow`이고, 코드에서 `hidden lg:*` / `lg:hidden`으로 갈립니다. 용병 `md`(768)는 `BottomNav`를 그대로 씁니다(responsive-design.md §7.1).
 
 **아이콘 13종:** calendar · clock · map-pin · banknote · users · bell · user · chevron-right · chevron-left · chevron-down · check · close · alert-triangle
 
@@ -331,10 +350,11 @@ Foundations 하단의 **Dark Mode** 섹션은 컬러 섹션을 복제해 `Color`
 
 ### `PositionSlot` Empty 변형의 어드민 오버라이드
 
-용병 화면에서 `Empty`는 **"신청 가능"(brand + chevron)** 입니다 — 탭하면 신청으로 가는 진입점이니까요. 어드민은 빈 슬롯을 탭할 수 없으므로 그대로 쓰면 있지도 않은 액션을 광고하게 됩니다. A-5에서는 인스턴스 단위로:
+용병 화면에서 `Empty`는 **"신청 가능"(brand)** 입니다 — 탭하면 신청으로 가는 진입점이니까요. 어드민은 빈 슬롯을 탭할 수 없으므로 그대로 쓰면 있지도 않은 액션을 광고하게 됩니다. A-5에서는 인스턴스 단위로:
 
-- 값 → `비어 있음`, 텍스트 fill을 `text/tertiary`로 오버라이드
-- 내부 chevron 노드를 `visible = false`
+- 값 → `비어 있음`, 텍스트 fill을 `text/brand` → `text/tertiary`로 오버라이드
+
+> **2026-09-03 정정.** 이 문단에 원래 "내부 chevron 노드를 `visible = false`"가 함께 적혀 있었으나, **`PositionSlot` Empty 변형에 chevron 노드가 없습니다.** 자식은 `Num`·`Position`·`Value` 텍스트 3개뿐이고, 실제로 필요한 오버라이드는 fill 하나입니다. 그리고 **프로퍼티 이름은 `값`이지만 노드 이름은 `Value`** 입니다 — 스크립트로 오버라이드할 때 `findOne(n => n.name === '값')`은 조용히 `null`을 반환합니다.
 
 컴포넌트에 `Readonly` variant를 추가하지 않은 이유: 상태가 늘어나는 게 아니라 **같은 상태를 다른 역할이 다르게 볼 뿐**이고, 지금 쓰이는 곳이 A-5 한 곳입니다. 어드민 화면이 더 늘면 variant로 승격하세요.
 
@@ -432,12 +452,12 @@ Light/Dark 각 21쌍, 총 42조합의 명도 대비를 실측해 **전부 WCAG A
 1. **Figma 라이브러리 게시** → 그 후 INSTANCE_SWAP 프로퍼티 추가
 2. ~~**화면 목업 P-1~P-11**~~ → 완료. v2로 재설계 (§6.2)
 3. **Code Connect 매핑** — Figma 컴포넌트 ↔ React 컴포넌트 연결
-4. **React 컴포넌트 구현** — 현재 `src/`에는 토큰만 있고 컴포넌트는 없음
+4. ~~**React 공용 컴포넌트 구현**~~ → 완료 (#13, `src/components/`). 다음은 화면 구현 — 라우팅 규칙은 [docs/routing.md](routing.md)
 5. ~~**주최자(Host) 화면설계서**~~ → 완료 (`docs/screen-design-admin.md` v2, 목업 A-1~A-8)
 6. ~~**`BottomNav` 역할별 확장**~~ → 완료. `Active`에 어드민 3변형 추가 (§6.1)
 7. **서비스 운영자(플랫폼 관리자) 화면** — 유저 정지 해제·문의 처리는 리그 어드민 권한 밖입니다. 역할이 확정되면 별도 페이지로 (어드민 명세 §6-1)
 8. ~~**로고 확정 → SVG 내보내기 → 코드 반영**~~ → 완료. A안 확정, `public/` SVG 4종 + `src/app/icon.svg` + `apple-icon.png` 연결 ([docs/logo.md](logo.md) §5)
-9. **로고 React 컴포넌트** — `currentColor` 인라인 SVG. `src/`에 컴포넌트 레이어가 생기는 시점에 4번과 함께
+9. **로고 React 컴포넌트** — `currentColor` 인라인 SVG. 현재는 `next/image`로 `public/*.svg`를 부르고 있습니다(`TopNav`)
 10. **구장 사진(`venue_image`) 도입 여부 결정** — P-4 상세의 밀도를 좌우합니다 (§6.2)
 11. **v1 목업 정리** — v2 확정 후 `📱 Screens` · `📱 Admin Screens` · `GameCard (deprecated)` 삭제
 12. **`ReservationRow` 액션 표시를 pill로** — 지금은 아웃라인 버튼처럼 보여 별도 탭 타깃으로 오독될 여지 (§6.2)
@@ -482,4 +502,7 @@ Light/Dark 각 21쌍, 총 42조합의 명도 대비를 실측해 **전부 WCAG A
 17. **`setCurrentPageAsync` 전에는 그 페이지의 `children`이 비어 보일 수 있습니다.** 다른 페이지의 자식을 필터링해 지우는 코드가 조용히 아무것도 안 지웁니다(어드민 페이지의 떠돌이 프레임이 이렇게 살아남았습니다). 대상 페이지로 전환한 뒤에 조작하세요.
 18. **`createAutoLayout`으로 만든 프레임을 어디에도 붙이지 않으면 현재 페이지의 최상위 자식으로 남습니다.** 화면 밖에 떠돌이 프레임이 생깁니다. 페이지 자식 목록을 한 번씩 검사하세요.
 19. **`setRangeFontName`은 `textStyleId`를 `mixed`로 풀어버립니다.** 한 텍스트 노드 안에서 숫자만 모노로 바꾸면 그 순간 텍스트 스타일 바인딩이 사라져 §7의 "텍스트 스타일 미적용 0" 감사에 걸립니다(`setRangeFills`는 fill만 바꾸므로 멀쩡합니다 — 둘을 같은 것으로 보면 안 됩니다). 서체를 부분적으로 바꿔야 한다면 **텍스트 노드를 쪼개서 각각에 스타일을 거세요.** A-7 진행률 줄이 이 문제였고, 결국 파일의 기존 관례(카운트 표기는 본문 서체 단일 스타일)를 따르는 것으로 정리했습니다.
+20. **아이콘은 fill이 아니라 stroke로 칠합니다.** `Icon/*` 컴포넌트의 벡터는 `fills: []`이고 `strokes`가 변수에 바인딩돼 있습니다. 인스턴스를 재색상할 때 `v.fills = [paint]`를 쓰면 열린 패스가 채워져 **캘린더 아이콘이 검은 사각형으로 렌더됩니다.** `v.fills = []; v.strokes = [paint]`가 맞습니다. 반환값만 보면 정상이라 8번과 마찬가지로 스크린샷 없이는 못 잡습니다.
+21. **컴포넌트 프로퍼티 이름과 내부 노드 이름이 다를 수 있습니다.** `PositionSlot`은 프로퍼티가 `값`인데 노드는 `Value`입니다. 인스턴스 오버라이드 전에 `findAll`로 실제 이름을 확인하세요. 그리고 프로퍼티 키는 `이름#id` 형태이므로 `Object.keys(defs).find(k => k.split('#')[0] === name)`으로 찾아야 컴포넌트를 다시 만들어도 안 깨집니다.
+22. **`layoutSizingVertical = 'FILL'`인 노드로 콘텐츠 높이를 재면 항상 부모 높이가 나옵니다.** 프레임이 넘치는지 보려면 안쪽의 HUG 노드를 재세요.
 14. **`remove()`한 노드는 되살릴 수 없습니다.** 프레임 높이를 콘텐츠에 맞추려고 FILL Spacer를 잠깐 지웠다가 다시 넣는 건 불가능합니다(`insertChild`가 "node does not exist"로 실패). 대신 **Spacer를 접었다 펴세요** — `layoutSizingVertical = 'FIXED'` → `resize(w, 1)` → 부모를 `primaryAxisSizingMode = 'AUTO'`로 측정 → 다시 `'FIXED'` + `resize` → Spacer를 `'FILL'`로 복구.
