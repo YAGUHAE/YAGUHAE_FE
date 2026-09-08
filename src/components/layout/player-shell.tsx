@@ -38,6 +38,8 @@ export function PlayerShell({
         className={cn(
           "mx-auto flex w-full flex-1 flex-col bg-bg-default",
           "md:my-2xl md:max-w-content lg:my-3xl",
+          // 페이지가 `data-shell-width="wide"`를 두면 layout을 건드리지 않고 976으로 넓어집니다 (routing.md §3-2)
+          "lg:has-[[data-shell-width=wide]]:max-w-wide",
           width === "wide" && "lg:max-w-wide",
           nav && "pb-[68px] lg:pb-0",
           className,

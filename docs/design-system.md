@@ -27,7 +27,7 @@
 | **반응형 레이어 — 어드민 콘솔** (컴포넌트 5종 · 변수 9개 · 화면 16개) | ✅ 완료 (2026-09-03) → [docs/responsive-design.md](responsive-design.md) |
 | **반응형 레이어 — 용병** (`TopNav` 1종 · 화면 22개) | ✅ 완료 (2026-09-03) → [docs/responsive-design.md §7](responsive-design.md) |
 | Code Connect 매핑 | ⬜ 미착수 |
-| React 컴포넌트 구현 | ✅ 공용 컴포넌트 30종 (#13). 화면(P-1~P-11 · A-1~A-8)은 미착수 |
+| React 컴포넌트 구현 | ✅ 공용 컴포넌트 30종 (#13) · 화면 19개 P-1~P-11 · A-1~A-8 (#16, 목 데이터) |
 | `globals.css`에 반응형 토큰 9개 반영 | ✅ 완료 (#13) |
 
 ---

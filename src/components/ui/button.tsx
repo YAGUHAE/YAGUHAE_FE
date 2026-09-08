@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes } from "react";
+import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { Icon, type IconName } from "./icon";
 
@@ -28,6 +29,8 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   icon?: IconName;
   /** 부모 폭을 채웁니다 (화면 하단 CTA, Dialog 액션). */
   fullWidth?: boolean;
+  /** 있으면 같은 모양의 `<Link>`로 그립니다 — 버튼처럼 보이는 내비게이션 (P-4 신청하기, A-3 경기 등록). */
+  href?: string;
 };
 
 /**
@@ -40,25 +43,35 @@ export function Button({
   size = "large",
   icon,
   fullWidth = false,
+  href,
   type = "button",
   className,
   children,
   ...rest
 }: ButtonProps) {
-  return (
-    <button
-      type={type}
-      className={cn(
-        "inline-flex items-center justify-center gap-sm rounded-md whitespace-nowrap transition-colors disabled:cursor-not-allowed",
-        VARIANT_CLASS[variant],
-        SIZE_CLASS[size],
-        fullWidth && "w-full",
-        className,
-      )}
-      {...rest}
-    >
+  const rootClass = cn(
+    "inline-flex items-center justify-center gap-sm rounded-md whitespace-nowrap transition-colors disabled:cursor-not-allowed",
+    VARIANT_CLASS[variant],
+    SIZE_CLASS[size],
+    fullWidth && "w-full",
+    className,
+  );
+  const content = (
+    <>
       {icon ? <Icon name={icon} size={size === "large" ? "lg" : "md"} /> : null}
       {children}
+    </>
+  );
+  if (href) {
+    return (
+      <Link href={href} className={rootClass}>
+        {content}
+      </Link>
+    );
+  }
+  return (
+    <button type={type} className={rootClass} {...rest}>
+      {content}
     </button>
   );
 }
