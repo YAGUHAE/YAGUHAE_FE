@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { PositionBoard, type PositionBoardProps } from "./position-board";
 import { routes } from "@/lib/routes";
 
-/** P-4 보드 — 빈 슬롯을 탭하면 그 포지션이 프리필된 P-5로 갑니다 (`?slot=선공-3루`). */
+/** P-4 보드 — 빈 슬롯을 탭하면 그 포지션이 프리필된 P-5로 갑니다 (`?slot=FIRST-THIRD-1`). */
 export function GameBoard({
   gameId,
   canReserve,

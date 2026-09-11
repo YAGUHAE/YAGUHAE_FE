@@ -81,7 +81,7 @@ export function PaymentActions({
         primary={{
           label: "입금 완료",
           onClick: () => {
-            // TODO: PATCH /admin/reservations/:id/confirm-payment + revalidatePath('/admin', 'layout')
+            // TODO: PATCH /reservations/:id/approve + revalidatePath('/admin', 'layout')
             void reservationId;
             setConfirmOpen(false);
             setDone("approved");
@@ -113,7 +113,7 @@ export function PaymentActions({
         primary={{
           label: "거절하기",
           onClick: () => {
-            // TODO: PATCH /admin/reservations/:id/reject — 슬롯이 다시 열립니다
+            // TODO: PATCH /reservations/:id/reject { reason } — 슬롯이 다시 열립니다
             setRejectOpen(false);
             setDone("rejected");
           },

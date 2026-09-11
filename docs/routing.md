@@ -1,7 +1,7 @@
 # 라우팅 설계 v1 — App Router 규칙
 
-> **최종 수정일:** 2026-09-03
-> **기반 문서:** `docs/screen-design-player.md` (v1) · `docs/screen-design-admin.md` (v2) · `docs/responsive-design.md` (v1)
+> **최종 수정일:** 2026-09-11
+> **기반 문서:** `docs/screen-design-player.md` (v1) · `docs/screen-design-admin.md` (v2) · `docs/responsive-design.md` (v1) · BE `docs/API 명세서.md` (v6.1)
 > **기준 버전:** Next.js 16.2.10 (App Router) · React 19.2.4
 > **범위:** URL 체계, 폴더 구조, 셸(layout) 배치, 쿼리 파라미터 계약, 인증 가드. 화면 내부 구성은 화면설계서, 레이아웃 수치는 반응형 설계 문서가 정본입니다
 
@@ -24,33 +24,33 @@
 
 | 화면 | URL | 파일 | 연동 API |
 |---|---|---|---|
-| P-1 카카오 로그인 | `/login` | `(auth)/login/page.tsx` | OAuth 콜백 |
-| P-2 프로필 설정 | `/onboarding` | `(auth)/onboarding/page.tsx` | 프로필 저장 (미정) |
+| P-1 카카오 로그인 | `/login` | `(auth)/login/page.tsx` | `GET /auth/kakao` → 콜백이 302로 `/onboarding`·`/games` 분기 |
+| P-2 프로필 설정 | `/onboarding` | `(auth)/onboarding/page.tsx` | `PATCH /users/me` |
 | P-3 경기 목록 | `/games` | `(player)/games/page.tsx` | `GET /games` |
 | P-4 경기 상세 | `/games/[gameId]` | `(player)/games/[gameId]/page.tsx` | `GET /games/:gameId` |
 | P-5 예약 신청 폼 | `/games/[gameId]/reserve` | `(player)/games/[gameId]/reserve/page.tsx` | `POST /games/:gameId/reservations` |
-| P-6 입금 안내 | `/reservations/[reservationId]/payment` | `(player)/reservations/[reservationId]/payment/page.tsx` | `PATCH /reservations/:id/payment-submitted` |
-| P-7 내 예약 목록 | `/reservations` | `(player)/reservations/page.tsx` | `GET /reservations/me` |
-| P-8 예약 상세 | `/reservations/[reservationId]` | `(player)/reservations/[reservationId]/page.tsx` | 미정 |
-| P-9 평가 작성 | `/reservations/[reservationId]/review` | `(player)/reservations/[reservationId]/review/page.tsx` | 미정 |
-| P-10 마이페이지 | `/my` | `(player)/my/page.tsx` | 미정 |
-| P-11 알림함 | `/notifications` | `(player)/notifications/page.tsx` | 미정 |
+| P-6 입금 안내 | `/reservations/[reservationId]/payment` | `(player)/reservations/[reservationId]/payment/page.tsx` | `GET /reservations/:id`, `PATCH /reservations/:id/payment-submitted` |
+| P-7 내 예약 목록 | `/reservations` | `(player)/reservations/page.tsx` | `GET /reservations/me?status=` |
+| P-8 예약 상세 | `/reservations/[reservationId]` | `(player)/reservations/[reservationId]/page.tsx` | `GET /reservations/:id`, `PATCH /reservations/:id/cancel` |
+| P-9 평가 작성 | `/reservations/[reservationId]/review` | `(player)/reservations/[reservationId]/review/page.tsx` | `GET /games/:gameId/participants`, `POST /games/:gameId/evaluations` |
+| P-10 마이페이지 | `/my` | `(player)/my/page.tsx` | `GET /users/me` |
+| P-11 알림함 | `/notifications` | `(player)/notifications/page.tsx` | `GET /notifications/me`, `PATCH /notifications/:id/read` |
 
 ### 1.2 리그 어드민 (A-1 ~ A-8)
 
 | 화면 | URL | 파일 | 연동 API |
 |---|---|---|---|
-| A-1 어드민 로그인 | `/admin/login` | `admin/login/page.tsx` | 미정 |
-| A-2 홈 (대시보드) | `/admin` | `admin/(console)/page.tsx` | 미정 |
-| A-3 경기 목록 | `/admin/games` | `admin/(console)/games/page.tsx` | 미정 |
-| A-4 경기 등록 | `/admin/games/new` | `admin/(console)/games/new/page.tsx` | 미정 |
-| A-4 경기 수정 | `/admin/games/[gameId]/edit` | `admin/(console)/games/[gameId]/edit/page.tsx` | 미정 |
-| A-5 경기 상세 | `/admin/games/[gameId]` | `admin/(console)/games/[gameId]/page.tsx` | `GET /admin/games/:id`, `GET /admin/games/:id/reservations?status=` |
-| A-6 입금 확인 | `/admin/payments` | `admin/(console)/payments/page.tsx` | `GET /admin/payments?status=&gameId=&q=` |
-| A-7 출석 체크 | `/admin/games/[gameId]/attendance` | `admin/(console)/games/[gameId]/attendance/page.tsx` | `POST /admin/games/:id/attendance` |
-| A-8 리그 설정 | `/admin/league` | `admin/(console)/league/page.tsx` | `GET /admin/league`, `PATCH /admin/league` |
+| A-1 어드민 로그인 | `/admin/login` | `admin/login/page.tsx` | `POST /auth/host/login` (응답 `leagueId`) |
+| A-2 홈 (대시보드) | `/admin` | `admin/(console)/page.tsx` | `GET /leagues/:id/dashboard` |
+| A-3 경기 목록 | `/admin/games` | `admin/(console)/games/page.tsx` | `GET /leagues/:leagueId/games?status=` |
+| A-4 경기 등록 | `/admin/games/new` | `admin/(console)/games/new/page.tsx` | `POST /leagues/:leagueId/games` |
+| A-4 경기 수정 | `/admin/games/[gameId]/edit` | `admin/(console)/games/[gameId]/edit/page.tsx` | `PATCH /games/:id` |
+| A-5 경기 상세 | `/admin/games/[gameId]` | `admin/(console)/games/[gameId]/page.tsx` | `GET /games/:id`, `GET /games/:gameId/reservations?status=` |
+| A-6 입금 확인 | `/admin/payments` | `admin/(console)/payments/page.tsx` | `GET /leagues/:leagueId/reservations?status=&gameId=&q=&cursor=` |
+| A-7 출석 체크 | `/admin/games/[gameId]/attendance` | `admin/(console)/games/[gameId]/attendance/page.tsx` | `POST /games/:gameId/attendance` |
+| A-8 리그 설정 | `/admin/league` | `admin/(console)/league/page.tsx` | `GET /leagues/:id`, `PATCH /leagues/:id`, `POST`·`PATCH /banks` |
 
-입금 확정·거절(`PATCH /admin/reservations/:id/confirm-payment` · `:id/reject`)은 **화면이 아니라 액션**입니다. A-6과 A-5 두 곳에서 호출하지만 라우트는 만들지 않습니다(§3-6).
+경로는 전부 `/api/v1` 아래입니다. 입금 확정·거절(`PATCH /reservations/:id/approve` · `:id/reject`)은 **화면이 아니라 액션**입니다. A-6과 A-5 두 곳에서 호출하지만 라우트는 만들지 않습니다(§3-6).
 
 ---
 
@@ -190,11 +190,11 @@ export default async function ConsoleLayout({ children }: LayoutProps<'/admin'>)
 | 화면 | 쿼리 키 | 값 |
 |---|---|---|
 | P-3 경기 목록 | `region` · `date` · `level` | 단일 선택 (§P-3) |
-| P-5 예약 신청 | `slot` | P-4 빈 슬롯 탭 진입 시 프리필. 예: `선공-3루` |
+| P-5 예약 신청 | `slot` | P-4 빈 슬롯 탭 진입 시 프리필. `팀-포지션코드-자리번호`, 예: `FIRST-THIRD-1` (같은 포지션이 2자리 이상일 수 있어 자리번호까지) |
 | P-7 내 예약 | `tab` | `ongoing` \| `done` \| `closed` |
 | A-3 경기 목록 | `status` | 경기 상태 |
 | A-5 경기 상세 | `tab` | `pending` \| `approved` \| `rejected` |
-| A-6 입금 확인 | `status` · `gameId` · `q` | API 파라미터와 동일. 기본은 전체 경기 합산 (§A-6) |
+| A-6 입금 확인 | `status` · `gameId` · `q` | API 파라미터와 동일(`pending` \| `done`). 기본은 전체 경기 합산 (§A-6) |
 
 **예외 — 클라이언트 state로 두는 것:** P-4·P-5의 선공/후공 `SegmentedTab`. 데이터를 다시 불러오지 않는 표시 토글이고, 특히 P-5는 팀을 오가도 선택이 유지돼야 하므로(§P-5) URL에 얹으면 오히려 방해가 됩니다.
 
@@ -300,9 +300,9 @@ P-1 성공 후 신규 유저는 `/onboarding`, 기존 유저는 `/games`입니�
 
 ## 7. 확인이 필요한 항목
 
-1. **P-9 평가 작성의 단위** — 지금은 `/reservations/[id]/review`로 예약에 매달아 뒀습니다. 명세상 평가 대상은 "같은 경기의 ATTENDED 참가자 전원"이므로 실제로는 경기 단위(`/games/[id]/review`)가 맞을 수 있습니다. §P-9의 제출 방식(개별 vs 일괄, 화면설계서 §2-1)이 정해지면 같이 확정합니다.
+1. ~~**P-9 평가 작성의 단위**~~ — **해소(2026-09-11).** API는 경기 단위 일괄 제출로 확정됐습니다(API 명세서 §7). 진입점이 예약(P-7·P-8)이라 URL은 `/reservations/[id]/review`로 두고, 예약의 `gameId`로 `/games/:gameId/participants`·`/evaluations`를 부릅니다.
 2. **참가비 0원 예약의 P-6 통과 여부** — 화면설계서 §2-2가 미결입니다. "P-6를 건너뛴다"로 정해지면 P-5 제출 후 redirect 대상이 `/reservations/[id]`로 갈라집니다.
-3. **쿠키 이름과 세션 방식** — `player_session` · `admin_session`은 이 문서에서 임시로 정한 이름입니다. 서버(NestJS)가 JWT를 어떻게 내려주는지에 맞춰 확정해야 §4-1이 완성됩니다.
+3. ~~**쿠키 이름과 세션 방식**~~ — **해소(2026-09-11).** 서버가 httpOnly 쿠키로 심습니다: access `player_session`·`admin_session`, refresh `player_refresh`·`admin_refresh` (API 명세서 §1.1). 서버는 역할 지정이 없는 라우트에서 용병 쿠키를 먼저 집으므로, FE는 세션을 명시해 해당 access 토큰을 `Authorization` 헤더로 보냅니다(`src/lib/api/client.ts`).
 4. **알림 딥링크 규칙** — P-11 아이템 클릭 시 `reservation_id`가 있으면 P-8로 간다고만 돼 있습니다. 만료 임박 알림은 P-6이 맞아 보이는데(§3-5), 알림 유형별 목적지 표가 필요합니다.
 5. **프로필 수정 라우트** — P-10 「프로필 수정」이 닿을 주소가 §1에 없습니다. 지금은 P-2 온보딩 폼(`/onboarding`)을 재사용해 두었습니다. `/my/edit`를 둘지, 온보딩 폼을 그대로 쓸지 정해야 합니다.
 6. **문의하기 목적지** — P-4 · P-10의 「문의하기」는 서비스 운영자 역할이 확정되기 전까지 닿을 곳이 없습니다(어드민 §6-1). 지금은 `mailto:` 자리표시자입니다.
@@ -318,4 +318,5 @@ P-1 성공 후 신규 유저는 `/onboarding`, 기존 유저는 `/games`입니�
 | 3 | `src/proxy.ts` (§4-1) — 세션 방식 확정 후 | ⬜ |
 | 4 | P-3 → P-4 → P-5 → P-6 순 구현 (용병 핵심 흐름) | ✅ #16 — UI + 목 데이터. API 연동은 `src/lib/data/*` 본문 교체 |
 | 5 | A-6 → A-5 → A-3 순 구현 (어드민 핵심 흐름) | ✅ #16 — 동상 |
-| 6 | 데이터 계층 API 연동 (`src/lib/data/*` → NestJS) · 서버 액션 + `revalidatePath` | ⬜ |
+| 6 | 데이터 계층을 API 명세 v6.1 모양으로 (`src/lib/api/*` · 목 모드 `API_MOCK=1`) | ✅ #18 — BE가 엔드포인트를 내면 `src/mocks/handlers.ts`의 해당 줄만 삭제 |
+| 7 | 변경 동작 서버 액션 + `revalidatePath` | ⬜ |

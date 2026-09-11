@@ -3,15 +3,11 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { FeeBreakdown } from "@/features/shared/fee-breakdown";
 import { InfoPill } from "@/features/shared/pill";
 import { PaymentActions } from "./payment-actions";
-import { isPending } from "@/lib/data/admin";
 import { formatPrice, formatShortDateTime, formatShortTimestamp, formatUntilExpiry } from "@/lib/format";
-import { TEAM_LABEL, type AdminReservation, type Game, type ReservationSlot } from "@/lib/types";
+import { isPending } from "@/lib/reservation-status";
+import { TEAM_LABEL, type AdminGameReservation, type AdminReservation, type ReservationSlot } from "@/lib/types";
 
 const SOON_MS = 6 * 60 * 60 * 1000;
-
-export function reservationAmount(r: { slots: { fee: number }[] }) {
-  return r.slots.reduce((sum, s) => sum + s.fee, 0);
-}
 
 /** `선공 3루 홍길동 · 외 2자리` */
 export function slotSummary(slots: ReservationSlot[]) {
@@ -20,21 +16,19 @@ export function slotSummary(slots: ReservationSlot[]) {
   return slots.length > 1 ? `${head} · 외 ${slots.length - 1}자리` : head;
 }
 
-export type PaymentCardProps = {
-  reservation: AdminReservation;
-  game: Game;
-  /** A-6은 경기 줄을 보여주고 슬롯은 한 줄 요약, A-5는 경기 안이므로 슬롯을 펼칩니다. */
-  variant: "payments" | "game";
-  now: number;
-  className?: string;
-};
+/** A-6은 경기 줄을 보여주고 슬롯은 한 줄 요약, A-5는 경기 안이므로 자리별 금액까지 펼칩니다. */
+export type PaymentCardProps = { now: number; className?: string } & (
+  | { variant: "payments"; reservation: AdminReservation }
+  | { variant: "game"; reservation: AdminGameReservation }
+);
 
 /** 어드민 예약 카드 (base · md). lg의 A-6은 `TableRow`로 갈립니다 (responsive-design.md §5). */
-export function PaymentCard({ reservation, game, variant, now, className }: PaymentCardProps) {
-  const amount = reservationAmount(reservation);
+export function PaymentCard(props: PaymentCardProps) {
+  const { reservation, now, className } = props;
+  const amount = reservation.totalFee;
   const zero = amount === 0;
   const pending = isPending(reservation.status);
-  const soon = pending && new Date(reservation.expiresAt).getTime() - now < SOON_MS;
+  const soon = pending && reservation.expiresAt !== undefined && new Date(reservation.expiresAt).getTime() - now < SOON_MS;
 
   return (
     <article
@@ -52,17 +46,17 @@ export function PaymentCard({ reservation, game, variant, now, className }: Paym
         <span className="type-caption text-text-secondary">{reservation.nickname}</span>
         {zero && pending ? <InfoPill>입금 불필요</InfoPill> : <StatusBadge status={reservation.status} />}
       </div>
-      {variant === "payments" ? (
+      {props.variant === "payments" ? (
         <>
           <p className="type-body-sm text-text-secondary">
-            {formatShortDateTime(game.startsAt)} · {game.venue}
+            {formatShortDateTime(reservation.game.startsAt)} · {reservation.game.venue}
           </p>
           <p className="type-body-sm text-text-secondary">{slotSummary(reservation.slots)}</p>
         </>
       ) : (
         <FeeBreakdown
           zeroLabel="무료 0원"
-          rows={reservation.slots.map((s, i) => ({
+          rows={props.reservation.slots.map((s, i) => ({
             key: `${s.team}-${s.position}-${i}`,
             label: (
               <>
@@ -78,7 +72,7 @@ export function PaymentCard({ reservation, game, variant, now, className }: Paym
       )}
       <p className={cn("type-caption", soon ? "text-feedback-warning-text" : "text-text-tertiary")}>
         신청 {formatShortTimestamp(reservation.createdAt)}
-        {soon ? ` · ${formatUntilExpiry(reservation.expiresAt, now)}` : ""}
+        {soon && reservation.expiresAt ? ` · ${formatUntilExpiry(reservation.expiresAt, now)}` : ""}
       </p>
       {pending ? (
         <PaymentActions

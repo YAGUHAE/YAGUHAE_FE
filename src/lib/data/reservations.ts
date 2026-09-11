@@ -1,55 +1,48 @@
-import { NOTIFICATIONS, PROFILE, RESERVATIONS } from "@/mocks/data";
-import type { Notification, Profile, Reservation, ReviewTarget } from "@/lib/types";
-import type { ReservationStatus } from "@/lib/reservation-status";
-import { GAMES } from "@/mocks/data";
+import { cache } from "react";
+import { orUndefined, playerApi } from "@/lib/api/client";
+import type {
+  ListDto,
+  MyReservationStatusQuery,
+  NotificationListDto,
+  ParticipantsDto,
+  ReservationDetailDto,
+  ReservationSummaryDto,
+  UserDetailDto,
+} from "@/lib/api/dto";
+import { toNotification, toProfile, toReservation, toReservationSummary, toReviewTargets } from "@/lib/api/mappers";
+import type { Notification, Profile, Reservation, ReservationSummary, ReviewTarget } from "@/lib/types";
 
-export type ReservationTab = "ongoing" | "done" | "closed";
+export type ReservationTab = MyReservationStatusQuery;
 
-export const RESERVATION_TAB_STATUSES: Record<ReservationTab, ReservationStatus[]> = {
-  ongoing: ["RESERVED", "PAYMENT_SUBMITTED", "APPROVED"],
-  done: ["ATTENDED"],
-  closed: ["EXPIRED", "CANCELLED", "REJECTED", "NO_SHOW"],
-};
-
-/** `GET /reservations/me` */
-export async function listMyReservations(tab: ReservationTab): Promise<Reservation[]> {
-  const statuses = RESERVATION_TAB_STATUSES[tab];
-  return RESERVATIONS.filter((r) => statuses.includes(r.status)).sort((a, b) =>
-    tab === "ongoing" ? a.createdAt.localeCompare(b.createdAt) : b.createdAt.localeCompare(a.createdAt),
-  );
+/** `GET /reservations/me?status=` — 탭별 상태 묶음과 정렬은 서버가 정합니다 (명세 §6). */
+export async function listMyReservations(tab: ReservationTab): Promise<ReservationSummary[]> {
+  const { items } = await playerApi.get<ListDto<ReservationSummaryDto>>("/reservations/me", { status: tab });
+  return items.map(toReservationSummary);
 }
 
-export async function getReservation(id: string): Promise<Reservation | undefined> {
-  return RESERVATIONS.find((r) => r.id === id);
-}
+/** `GET /reservations/:id` — 경기·계좌까지 조인돼 옵니다. */
+export const getReservation = cache(async (id: string): Promise<Reservation | undefined> => {
+  const dto = await orUndefined(playerApi.get<ReservationDetailDto>(`/reservations/${encodeURIComponent(id)}`));
+  return dto && toReservation(dto);
+});
 
-export function reservationTotal(r: { slots: { fee: number }[] }) {
-  return r.slots.reduce((sum, s) => sum + s.fee, 0);
-}
+/** `GET /users/me` */
+export const getProfile = cache(async (): Promise<Profile> => toProfile(await playerApi.get<UserDetailDto>("/users/me")));
 
-export async function getProfile(): Promise<Profile> {
-  return PROFILE;
-}
-
+/** `GET /notifications/me` */
 export async function listNotifications(): Promise<Notification[]> {
-  return [...NOTIFICATIONS].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const { items } = await playerApi.get<NotificationListDto>("/notifications/me");
+  return items.map(toNotification);
 }
 
+/** 셸 배지 — 매 화면 layout에서 부릅니다. */
 export async function getUnreadCount(): Promise<number> {
-  return NOTIFICATIONS.filter((n) => !n.read).length;
+  const { unreadCount } = await playerApi.get<NotificationListDto>("/notifications/me", { unreadOnly: true });
+  return unreadCount;
 }
 
-/** P-9 평가 대상 — 같은 경기의 ATTENDED 참가자 중 본인 제외, 계정 있는 사람만 (§3.2) */
-export async function listReviewTargets(reservation: Reservation): Promise<ReviewTarget[]> {
-  const game = GAMES.find((g) => g.id === reservation.gameId);
-  if (!game) return [];
-  return game.slots
-    .filter((s) => s.participantName && !s.isMine && !s.proxy)
-    .map((s) => ({
-      id: s.id,
-      name: s.participantName!,
-      team: s.team,
-      position: s.position,
-      reviewed: false,
-    }));
+/** `GET /games/:gameId/participants` — P-9 평가 대상. 본인·대리 신청분 제외는 서버가 합니다 (명세 §7). */
+export async function listReviewTargets(gameId: string): Promise<ReviewTarget[]> {
+  const dto = await playerApi.get<ParticipantsDto>(`/games/${encodeURIComponent(gameId)}/participants`);
+  return toReviewTargets(dto);
 }

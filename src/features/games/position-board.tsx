@@ -26,8 +26,9 @@ export type PositionBoardProps = {
   className?: string;
 };
 
+/** 덕아웃은 선택 입력이라 비어 있으면 괄호를 붙이지 않습니다. */
 function teamLabel(game: Pick<Game, "dugout">, team: Team) {
-  return `${TEAM_LABEL[team]} (${game.dugout[team]})`;
+  return game.dugout[team] ? `${TEAM_LABEL[team]} (${game.dugout[team]})` : TEAM_LABEL[team];
 }
 
 function count(slots: Slot[]) {

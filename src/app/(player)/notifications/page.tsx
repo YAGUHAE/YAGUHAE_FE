@@ -11,19 +11,23 @@ import { routes } from "@/lib/routes";
 import type { NotificationType } from "@/lib/types";
 
 const ICON: Record<NotificationType, { name: IconName; className: string }> = {
-  PAYMENT_DUE_1H: { name: "clock", className: "bg-feedback-warning-bg text-feedback-warning-text" },
-  PAYMENT_DUE_12H: { name: "clock", className: "bg-bg-muted text-icon-secondary" },
+  EXPIRING_1H: { name: "clock", className: "bg-feedback-warning-bg text-feedback-warning-text" },
+  EXPIRING_12H: { name: "clock", className: "bg-bg-muted text-icon-secondary" },
   APPROVED: { name: "check", className: "bg-feedback-success-bg text-feedback-success-text" },
   REJECTED: { name: "alert-triangle", className: "bg-feedback-danger-bg text-feedback-danger-text" },
-  NO_SHOW: { name: "alert-triangle", className: "bg-feedback-danger-bg text-feedback-danger-text" },
+  NO_SHOW_MARKED: { name: "alert-triangle", className: "bg-feedback-danger-bg text-feedback-danger-text" },
+  // MVP에서는 발송하지 않습니다 (명세 §8) — 와도 알림함이 깨지지 않게만 둡니다
+  WAITLIST_PROMOTED: { name: "bell", className: "bg-bg-brand-subtle text-text-brand" },
 };
 
-/** 알림 유형별 목적지 — 만료 임박은 P-6, 나머지는 P-8 (routing.md §7-4 임시 표) */
-function destination(type: NotificationType, reservationId?: string) {
-  if (!reservationId) return undefined;
-  return type === "PAYMENT_DUE_1H" || type === "PAYMENT_DUE_12H"
-    ? routes.reservationPayment(reservationId)
-    : routes.reservation(reservationId);
+/** 알림 유형별 목적지 — 만료 임박은 P-6, 예약이 있으면 P-8, 경기만 있으면 P-4 (routing.md §7-4 임시 표) */
+function destination(type: NotificationType, reservationId?: string, gameId?: string) {
+  if (reservationId) {
+    return type === "EXPIRING_1H" || type === "EXPIRING_12H"
+      ? routes.reservationPayment(reservationId)
+      : routes.reservation(reservationId);
+  }
+  return gameId ? routes.game(gameId) : undefined;
 }
 
 export default async function NotificationsPage() {
@@ -38,7 +42,7 @@ export default async function NotificationsPage() {
         <ul className="flex flex-col">
           {notifications.map((n) => {
             const icon = ICON[n.type];
-            const href = destination(n.type, n.reservationId);
+            const href = destination(n.type, n.reservationId, n.gameId);
             const body = (
               <>
                 <span className={cn("flex size-[40px] shrink-0 items-center justify-center rounded-full", icon.className)}>

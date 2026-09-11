@@ -9,8 +9,7 @@ import { FeeBreakdown } from "@/features/shared/fee-breakdown";
 import { InfoPill } from "@/features/shared/pill";
 import { KeyValueRow, SectionTitle } from "@/features/shared/rows";
 import { ScreenHeader } from "@/features/shared/screen-header";
-import { getGame } from "@/lib/data/games";
-import { getReservation, reservationTotal } from "@/lib/data/reservations";
+import { getReservation } from "@/lib/data/reservations";
 import { formatDateTime, formatTimestamp } from "@/lib/format";
 import type { ReservationStatus } from "@/lib/reservation-status";
 import { routes } from "@/lib/routes";
@@ -32,9 +31,7 @@ export default async function ReservationPage(props: PageProps<"/reservations/[r
   const { reservationId } = await props.params;
   const reservation = await getReservation(reservationId);
   if (!reservation) notFound();
-  const game = await getGame(reservation.gameId);
-  if (!game) notFound();
-  const total = reservationTotal(reservation);
+  const { game } = reservation;
   const multi = reservation.slots.length > 1;
   const cancellable = reservation.status === "RESERVED" || reservation.status === "PAYMENT_SUBMITTED";
 
@@ -69,7 +66,7 @@ export default async function ReservationPage(props: PageProps<"/reservations/[r
             ),
             fee: s.fee,
           }))}
-          total={multi ? { label: "합계", amount: total } : undefined}
+          total={multi ? { label: "합계", amount: reservation.totalFee } : undefined}
         />
       </section>
       <SectionBand />
