@@ -5,9 +5,12 @@ import { DateCell } from "@/components/ui/date-cell";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { toDateKey } from "@/lib/format";
 
+type Option = { value: string; label: string };
+
 export type GameFiltersProps = {
   regions: string[];
-  levels: string[];
+  /** 값은 서버 enum(`L3`), 라벨은 화면 표기(`3부`) */
+  levels: Option[];
   value: { date: string; region?: string; level?: string; hideClosed: boolean };
   /** 스트립의 첫 날 (`YYYY-MM-DD`). 서버에서 계산해 넘겨 하이드레이션이 어긋나지 않게 합니다. */
   startDate: string;
@@ -50,12 +53,12 @@ export function GameFilters({ regions, levels, value, startDate }: GameFiltersPr
           label={value.region ?? "내 지역"}
           selected={Boolean(value.region)}
           value={value.region ?? ""}
-          options={regions}
+          options={regions.map((r) => ({ value: r, label: r }))}
           placeholder="전체 지역"
           onChange={(v) => update({ region: v })}
         />
         <ChipSelect
-          label={value.level ?? "급수"}
+          label={levels.find((l) => l.value === value.level)?.label ?? "급수"}
           selected={Boolean(value.level)}
           value={value.level ?? ""}
           options={levels}
@@ -89,7 +92,7 @@ function ChipSelect({
   label: string;
   selected: boolean;
   value: string;
-  options: string[];
+  options: Option[];
   placeholder: string;
   onChange: (value: string) => void;
 }) {
@@ -106,8 +109,8 @@ function ChipSelect({
       >
         <option value="">{placeholder}</option>
         {options.map((o) => (
-          <option key={o} value={o}>
-            {o}
+          <option key={o.value} value={o.value}>
+            {o.label}
           </option>
         ))}
       </select>

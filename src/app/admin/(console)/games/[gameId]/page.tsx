@@ -90,7 +90,7 @@ export default async function AdminGamePage(props: PageProps<"/admin/games/[game
             {reservations.length === 0 ? (
               <EmptyState icon="banknote" title={EMPTY_TEXT[tab]} />
             ) : (
-              reservations.map((r) => <PaymentCard key={r.id} reservation={r} game={game} variant="game" now={now} />)
+              reservations.map((r) => <PaymentCard key={r.id} reservation={r} variant="game" now={now} />)
             )}
           </div>
           <div className="lg:hidden">{attendance}</div>

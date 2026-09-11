@@ -73,7 +73,7 @@ export function ReviewForm({ targets, gameDateLabel, backHref }: ReviewFormProps
 
   const next = () => {
     if (last) {
-      // TODO: 평가 제출 API (미정)
+      // TODO: POST /games/:gameId/evaluations (일괄)
       setDone(true);
       return;
     }

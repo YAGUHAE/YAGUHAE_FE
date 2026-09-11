@@ -17,7 +17,7 @@ export function AdminLoginForm() {
       setError("아이디 또는 비밀번호를 확인해주세요");
       return;
     }
-    // TODO: POST /admin/auth/login — 세션에 leagueId가 실립니다
+    // TODO: POST /auth/host/login — 응답의 leagueId를 `admin_league` 쿠키로
     router.push("/admin");
   };
 

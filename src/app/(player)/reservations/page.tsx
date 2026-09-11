@@ -5,7 +5,6 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ScreenHeader } from "@/features/shared/screen-header";
 import { SearchParamTabs } from "@/features/shared/search-param-tabs";
 import { pickTab } from "@/lib/search-params";
-import { getGame } from "@/lib/data/games";
 import { listMyReservations, type ReservationTab } from "@/lib/data/reservations";
 import { formatDateTime } from "@/lib/format";
 import { routes } from "@/lib/routes";
@@ -28,8 +27,8 @@ const PILL_CLASS =
 export default async function ReservationsPage(props: PageProps<"/reservations">) {
   const sp = await props.searchParams;
   const tab = pickTab(sp.tab, TABS.map((t) => t.value));
+  // 카드에 필요한 경기 정보는 예약에 조인돼 옵니다 — 카드마다 경기를 따로 조회하지 않습니다 (명세 §6)
   const reservations = await listMyReservations(tab);
-  const games = await Promise.all(reservations.map((r) => getGame(r.gameId)));
 
   return (
     <>
@@ -39,8 +38,7 @@ export default async function ReservationsPage(props: PageProps<"/reservations">
         <EmptyState icon="check" title={EMPTY_TEXT[tab]} />
       ) : (
         <div className="flex flex-col">
-          {reservations.map((r, i) => {
-            const game = games[i];
+          {reservations.map((r) => {
             // RESERVED는 P-6로 바로, 나머지는 P-8 (§P-7)
             const href = r.status === "RESERVED" ? routes.reservationPayment(r.id) : routes.reservation(r.id);
             const action =
@@ -57,8 +55,8 @@ export default async function ReservationsPage(props: PageProps<"/reservations">
               <ReservationRow
                 key={r.id}
                 href={href}
-                venue={game?.venue ?? ""}
-                datetime={game ? formatDateTime(game.startsAt) : ""}
+                venue={r.game.venue}
+                datetime={formatDateTime(r.game.startsAt)}
                 status={r.status}
                 action={action}
               />

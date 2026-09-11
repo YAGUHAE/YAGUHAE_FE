@@ -36,7 +36,7 @@ export function OnboardingForm({ initial, regions, positions, levels, mode }: On
     if (url && !/^https?:\/\/.+/.test(url)) next.url = "http:// 또는 https://로 시작하는 주소만 받아요";
     setErrors(next);
     if (Object.keys(next).length > 0) return;
-    // TODO: 프로필 저장 API (미정)
+    // TODO: PATCH /users/me — 급수·포지션은 라벨 → enum으로
     router.push(mode === "onboarding" ? "/games" : "/my");
   };
 

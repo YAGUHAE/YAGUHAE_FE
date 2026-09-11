@@ -50,8 +50,13 @@ export default async function GamePage(props: PageProps<"/games/[gameId]">) {
               <span className="type-body-md text-text-secondary">{formatDateTime(game.startsAt)}</span>
               <h2 className="type-heading-lg text-text-default">{game.venue}</h2>
               <p className="flex flex-wrap items-center gap-x-md type-body-md text-text-secondary">
-                <span>{game.address}</span>
-                <CopyLink text={game.address}>주소 복사</CopyLink>
+                {/* 주소는 명세에 아직 없습니다 — 오면 그대로 그립니다 */}
+                {game.address ? (
+                  <>
+                    <span>{game.address}</span>
+                    <CopyLink text={game.address}>주소 복사</CopyLink>
+                  </>
+                ) : null}
                 <TextLink href={`https://map.naver.com/v5/search/${encodeURIComponent(game.venue)}`}>지도 보기</TextLink>
               </p>
               <span className={`self-start rounded-sm px-sm py-2xs type-label-sm ${statusPill.className}`}>

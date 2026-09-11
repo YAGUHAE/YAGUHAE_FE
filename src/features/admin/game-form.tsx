@@ -20,6 +20,8 @@ import { routes } from "@/lib/routes";
 import {
   FEE_TIER_LABEL,
   FEE_TIERS,
+  LEVEL_LABEL,
+  LEVELS,
   POSITION_PRESET,
   TEAM_LABEL,
   TEAMS,
@@ -31,13 +33,14 @@ import {
 
 type SlotDraft = { id: string; team: Team; index: number; position: string; enabled: boolean; locked: boolean };
 
-const LEVEL_OPTIONS = ["1~3급", "2~4급", "3~5급", "4~6급"];
+// 저장 API를 붙일 때 라벨 → `L1~L4`로 바꿔 보냅니다
+const LEVEL_OPTIONS = LEVELS.map((l) => LEVEL_LABEL[l]);
 
 function buildSlots(game?: Game): SlotDraft[] {
   return TEAMS.flatMap((team) =>
     POSITION_PRESET.map((p, i) => {
       const id = `${TEAM_LABEL[team]}-${p.position}`;
-      const existing = game?.slots.find((s) => s.id === id);
+      const existing = game?.slots.find((s) => s.team === team && s.code === p.code);
       return {
         id,
         team,
@@ -100,7 +103,7 @@ export function GameForm({ mode, game, league, recentVenues, lastGame }: GameFor
     setSlots(slots.map((s) => (s.id === id && !s.locked ? { ...s, enabled: !s.enabled } : s)));
 
   const save = () => {
-    // TODO: POST /admin/games · PATCH /admin/games/:id — 성공 시 A-5
+    // TODO: POST /leagues/:leagueId/games · PATCH /games/:id — 성공 시 A-5
     router.push(routes.adminGame(game?.id ?? "g6"));
   };
 
