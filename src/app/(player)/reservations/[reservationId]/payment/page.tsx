@@ -2,7 +2,6 @@
 import { notFound, redirect } from "next/navigation";
 import { PaymentPanel } from "@/features/reservations/payment-panel";
 import { ScreenHeader } from "@/features/shared/screen-header";
-import { getLeague } from "@/lib/data/admin";
 import { getReservation } from "@/lib/data/reservations";
 import { routes } from "@/lib/routes";
 
@@ -10,18 +9,18 @@ export default async function PaymentPage(props: PageProps<"/reservations/[reser
   const { reservationId } = await props.params;
   const reservation = await getReservation(reservationId);
   if (!reservation) notFound();
-  if (reservation.status !== "RESERVED" && reservation.status !== "PAYMENT_SUBMITTED") {
+  const { expiresAt } = reservation;
+  if ((reservation.status !== "RESERVED" && reservation.status !== "PAYMENT_SUBMITTED") || !expiresAt) {
     redirect(routes.reservation(reservation.id));
   }
-  // TODO: 계좌는 경기가 속한 리그의 값 (A-8 입금 계좌). 지금은 단일 리그 목입니다
-  const league = await getLeague();
 
   return (
     <>
       <ScreenHeader title="입금 안내" backHref="/reservations" />
       <PaymentPanel
-        reservation={reservation}
-        account={{ bank: league.bank, accountNumber: league.accountNumber, accountHolder: league.accountHolder }}
+        reservation={{ ...reservation, expiresAt }}
+        // 계좌는 경기가 속한 리그의 값 — 예약 상세에 조인돼 옵니다 (명세 §6)
+        account={reservation.game.bank}
       />
     </>
   );

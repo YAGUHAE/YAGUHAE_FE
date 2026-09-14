@@ -5,12 +5,14 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { GameFilters } from "@/features/games/game-filters";
 import { LogoHeader } from "@/features/shared/screen-header";
 import { getServerNow } from "@/lib/data/clock";
-import { capacityLabel, emptyChips, listGames, minFee } from "@/lib/data/games";
+import { capacityLabel, emptyChips, listGames } from "@/lib/data/games";
 import { formatAmount, formatTime, toDateKey } from "@/lib/format";
 import { routes } from "@/lib/routes";
 import { first } from "@/lib/search-params";
-import { LEVELS, REGIONS } from "@/mocks/data";
+import { REGIONS } from "@/lib/constants";
+import { LEVEL_LABEL, LEVELS, type Level } from "@/lib/types";
 
+const LEVEL_OPTIONS = LEVELS.map((l) => ({ value: l, label: LEVEL_LABEL[l] }));
 
 export default async function GamesPage(props: PageProps<"/games">) {
   const sp = await props.searchParams;
@@ -18,7 +20,8 @@ export default async function GamesPage(props: PageProps<"/games">) {
   const rawDate = first(sp.date);
   const date = rawDate && /^\d{4}-\d{2}-\d{2}$/.test(rawDate) ? rawDate : today;
   const region = first(sp.region) || undefined;
-  const level = first(sp.level) || undefined;
+  const rawLevel = first(sp.level);
+  const level = LEVELS.includes(rawLevel as Level) ? (rawLevel as Level) : undefined;
   const hideClosed = first(sp.hideClosed) === "1";
 
   const games = await listGames({ date, region, level, hideClosed });
@@ -28,7 +31,7 @@ export default async function GamesPage(props: PageProps<"/games">) {
       <LogoHeader />
       <GameFilters
         regions={REGIONS}
-        levels={LEVELS}
+        levels={LEVEL_OPTIONS}
         startDate={today}
         value={{ date, region, level, hideClosed }}
       />
@@ -51,7 +54,7 @@ export default async function GamesPage(props: PageProps<"/games">) {
               time={formatTime(g.startsAt)}
               venue={g.venue}
               capacity={capacityLabel(g)}
-              price={`${formatAmount(minFee(g))}원부터`}
+              price={`${formatAmount(g.minFee)}원부터`}
               meta={g.recommendedLevel ?? "급수 무관"}
               chips={emptyChips(g)}
               status={g.status}

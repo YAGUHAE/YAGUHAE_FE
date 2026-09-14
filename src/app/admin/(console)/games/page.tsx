@@ -12,8 +12,8 @@ import { ConsoleHeader } from "@/features/admin/console-header";
 import { LinkTableRow } from "@/features/admin/link-table-row";
 import { SearchParamTabs } from "@/features/shared/search-param-tabs";
 import { pickTab } from "@/lib/search-params";
-import { countPendingByGame, listAdminGames, type AdminGameTab } from "@/lib/data/admin";
-import { emptyChips, filledCount, minFee } from "@/lib/data/games";
+import { listAdminGames, type AdminGameTab } from "@/lib/data/admin";
+import { capacityLabel, emptyChips } from "@/lib/data/games";
 import { formatAmount, formatDate, formatDateTime, formatTime } from "@/lib/format";
 import { routes } from "@/lib/routes";
 import type { GameStatus } from "@/components/data/match-row";
@@ -45,8 +45,8 @@ const GAME_TABLE_COLUMNS: TableColumn[] = [
 export default async function AdminGamesPage(props: PageProps<"/admin/games">) {
   const sp = await props.searchParams;
   const tab = pickTab(sp.status, TABS.map((t) => t.value));
+  // 항목마다 입금 미처리 건수가 붙어 옵니다 (명세 §5)
   const games = await listAdminGames(tab);
-  const pendings = await Promise.all(games.map((g) => countPendingByGame(g.id)));
 
   return (
     <>
@@ -74,24 +74,24 @@ export default async function AdminGamesPage(props: PageProps<"/admin/games">) {
       ) : (
         <>
           <div className="flex flex-col lg:hidden">
-            {games.map((g, i) => (
+            {games.map((g) => (
               <Fragment key={g.id}>
                 <MatchRow
                   href={routes.adminGame(g.id)}
                   time={formatTime(g.startsAt)}
                   venue={g.venue}
-                  capacity={`선공 ${filledCount(g, "FIRST").filled}/${filledCount(g, "FIRST").total} · 후공 ${filledCount(g, "SECOND").filled}/${filledCount(g, "SECOND").total}`}
-                  price={`${formatAmount(minFee(g))}원부터`}
+                  capacity={capacityLabel(g)}
+                  price={`${formatAmount(g.minFee)}원부터`}
                   meta={formatDate(g.startsAt)}
                   chips={emptyChips(g)}
                   status={tab === "ended" ? "CLOSED" : g.status}
                 />
-                {pendings[i] > 0 ? (
+                {g.pendingPayments ? (
                   <Link
                     href={`/admin/payments?gameId=${g.id}`}
                     className="flex items-center justify-between bg-bg-brand-subtle px-lg py-md type-label-md text-text-brand transition-colors hover:bg-bg-hover"
                   >
-                    입금 확인 {pendings[i]}건
+                    입금 확인 {g.pendingPayments}건
                     <Icon name="chevron-right" size="lg" className="text-icon-brand" />
                   </Link>
                 ) : null}
@@ -101,9 +101,9 @@ export default async function AdminGamesPage(props: PageProps<"/admin/games">) {
 
           <div className="hidden pt-lg lg:block">
             <Table columns={GAME_TABLE_COLUMNS}>
-              {games.map((g, i) => {
-                const first = filledCount(g, "FIRST");
-                const second = filledCount(g, "SECOND");
+              {games.map((g) => {
+                const { FIRST: first, SECOND: second } = g.capacity;
+                const pending = g.pendingPayments ?? 0;
                 return (
                   <LinkTableRow key={g.id} href={routes.adminGame(g.id)}>
                     <TablePrimaryCell title={formatDateTime(g.startsAt)} sub={g.venue} />
@@ -115,9 +115,9 @@ export default async function AdminGamesPage(props: PageProps<"/admin/games">) {
                     </TableCell>
                     <TableCell
                       align="right"
-                      className={cn(pendings[i] > 0 ? "type-numeric-price text-text-brand" : "type-body-sm text-text-tertiary")}
+                      className={cn(pending > 0 ? "type-numeric-price text-text-brand" : "type-body-sm text-text-tertiary")}
                     >
-                      {pendings[i] > 0 ? `${pendings[i]}건` : "–"}
+                      {pending > 0 ? `${pending}건` : "–"}
                     </TableCell>
                     <TableCell>
                       <TableStatusText>{tab === "ended" ? "종료" : STATUS_TEXT[g.status]}</TableStatusText>

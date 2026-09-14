@@ -17,7 +17,7 @@ import { FEE_TIER_LABEL, TEAM_LABEL, type Game, type Slot } from "@/lib/types";
 export type ReserveFormProps = {
   game: Game;
   nickname: string;
-  /** P-4 빈 슬롯 탭 진입 시 프리필 (`?slot=선공-3루`). */
+  /** P-4 빈 슬롯 탭 진입 시 프리필 (`?slot=FIRST-THIRD-1`). */
   initialSlotId?: string;
 };
 

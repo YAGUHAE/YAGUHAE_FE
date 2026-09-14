@@ -107,7 +107,7 @@ export function AttendanceSheet({ game, backHref }: AttendanceSheetProps) {
         <SegmentedTabs>
           {TEAMS.map((t) => (
             <SegmentedTab key={t} selected={t === team} onClick={() => setTeam(t)}>
-              {TEAM_LABEL[t]} ({game.dugout[t]})
+              {game.dugout[t] ? `${TEAM_LABEL[t]} (${game.dugout[t]})` : TEAM_LABEL[t]}
             </SegmentedTab>
           ))}
         </SegmentedTabs>
@@ -174,7 +174,7 @@ export function AttendanceSheet({ game, backHref }: AttendanceSheetProps) {
         primary={{
           label: "제출",
           onClick: () => {
-            // TODO: POST /admin/games/:id/attendance — 두 팀 일괄 1회
+            // TODO: POST /games/:gameId/attendance — 두 팀 일괄 1회
             setConfirmOpen(false);
             setDone(true);
           },

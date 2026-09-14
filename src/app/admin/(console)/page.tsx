@@ -11,8 +11,7 @@ import { SectionBand } from "@/components/ui/section-band";
 import { TextLink } from "@/components/ui/text-link";
 import { PageHeader } from "@/components/navigation/page-header";
 import { ConsoleHeader } from "@/features/admin/console-header";
-import { reservationAmount } from "@/features/admin/payment-card";
-import { countPendingByGame, getDashboard, getLeague } from "@/lib/data/admin";
+import { getDashboard, getLeague, pendingByGame } from "@/lib/data/admin";
 import { getServerNow } from "@/lib/data/clock";
 import { capacityLabel } from "@/lib/data/games";
 import { formatDateTime, formatFullDate, formatPrice } from "@/lib/format";
@@ -36,9 +35,10 @@ function PendingRow({ label, value, unit, href }: { label: string; value: number
 }
 
 export default async function AdminHomePage() {
-  const [league, dashboard, now] = await Promise.all([getLeague(), getDashboard(), getServerNow()]);
-  const pendingByGame = await Promise.all(dashboard.upcoming.map((g) => countPendingByGame(g.id)));
+  const [league, dashboard, pending, now] = await Promise.all([getLeague(), getDashboard(), pendingByGame(), getServerNow()]);
   const today = formatFullDate(new Date(now).toISOString());
+  // 대시보드 DTO에 전체 경기 수가 없어 "할 일도, 다가오는 경기도 없음"으로 판정합니다
+  const empty = dashboard.upcoming.length === 0 && dashboard.pendingPayments === 0;
 
   return (
     <>
@@ -47,7 +47,7 @@ export default async function AdminHomePage() {
         <PageHeader title="홈" meta={`${league.name} · ${today}`} className="hidden lg:flex" />
       </ConsoleHeader>
 
-      {dashboard.totalGames === 0 ? (
+      {empty ? (
         <EmptyState
           title="등록된 경기가 없어요"
           description="첫 경기를 올리면 여기에 할 일이 보여요"
@@ -58,11 +58,11 @@ export default async function AdminHomePage() {
           <section className="flex flex-col gap-md px-lg pb-2xl lg:hidden">
             <h2 className="type-heading-md text-text-default">처리 대기</h2>
             <PendingRow label="입금 확인 대기" value={dashboard.pendingPayments} unit="건" href="/admin/payments" />
-            <PendingRow label="오늘 · 내일 경기" value={dashboard.todayTomorrow} unit="개" href="/admin/games" />
+            <PendingRow label="오늘 · 내일 경기" value={dashboard.imminentGames} unit="개" href="/admin/games" />
           </section>
           <div className="hidden gap-lg pb-3xl lg:grid lg:grid-cols-3">
             <StatTile label="입금 확인 대기" value={dashboard.pendingPayments} href="/admin/payments" />
-            <StatTile label="오늘·내일 경기" value={dashboard.todayTomorrow} unit="개" href="/admin/games" />
+            <StatTile label="오늘·내일 경기" value={dashboard.imminentGames} unit="개" href="/admin/games" />
             <StatTile label="모집중 경기" value={dashboard.openGames} unit="개" href="/admin/games" />
           </div>
           <SectionBand className="lg:hidden" />
@@ -70,12 +70,12 @@ export default async function AdminHomePage() {
           <Split variant="side" className="gap-0 lg:gap-3xl">
             <section className="flex flex-col">
               <h2 className="px-lg pt-2xl pb-md type-heading-md text-text-default lg:px-0 lg:pt-0">다가오는 경기</h2>
-              {dashboard.upcoming.map((g, i) => (
+              {dashboard.upcoming.map((g) => (
                 <AdminRow
                   key={g.id}
                   href={routes.adminGame(g.id)}
                   title={formatDateTime(g.startsAt)}
-                  badge={pendingByGame[i] > 0 ? `입금 ${pendingByGame[i]}건` : undefined}
+                  badge={pending.get(g.id) ? `입금 ${pending.get(g.id)}건` : undefined}
                   description={g.venue}
                   meta={capacityLabel(g)}
                 />
@@ -94,7 +94,7 @@ export default async function AdminHomePage() {
                       className="flex items-center justify-between border-b border-border-subtle px-lg py-md last:border-b-0"
                     >
                       <span className="type-heading-sm text-text-default">{r.depositorName}</span>
-                      <span className="type-numeric-price text-text-default">{formatPrice(reservationAmount(r))}</span>
+                      <span className="type-numeric-price text-text-default">{formatPrice(r.totalFee)}</span>
                     </div>
                   ))}
                 </div>

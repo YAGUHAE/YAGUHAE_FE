@@ -14,11 +14,12 @@ import { InlineNotice } from "@/features/shared/inline-notice";
 import { InfoBox, KeyValueRow, SectionTitle } from "@/features/shared/rows";
 import { formatPrice } from "@/lib/format";
 import type { ReservationStatus } from "@/lib/reservation-status";
-import { FEE_TIER_LABEL, type League, type Reservation } from "@/lib/types";
+import { FEE_TIER_LABEL, type BankAccount, type Reservation } from "@/lib/types";
 
 export type PaymentPanelProps = {
-  reservation: Reservation;
-  account: Pick<League, "bank" | "accountNumber" | "accountHolder">;
+  /** 입금 대기 중인 예약 — 만료 시각이 반드시 있습니다. */
+  reservation: Reservation & { expiresAt: string };
+  account: BankAccount;
 };
 
 /** P-6 입금 안내 — 카운트다운이 주인공. 계좌는 옮겨 적는 값이라 모노 + 복사, 금액은 합계 + 슬롯별 내역. */
@@ -29,7 +30,7 @@ export function PaymentPanel({ reservation, account }: PaymentPanelProps) {
   const [expired, setExpired] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const total = reservation.slots.reduce((sum, s) => sum + s.fee, 0);
+  const total = reservation.totalFee;
   const multi = reservation.slots.length > 1;
 
   const copy = async () => {

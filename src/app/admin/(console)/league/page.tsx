@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/navigation/page-header";
 import { ConsoleHeader } from "@/features/admin/console-header";
 import { LeagueForm } from "@/features/admin/league-form";
 import { getLeague } from "@/lib/data/admin";
-import { REGIONS } from "@/mocks/data";
+import { REGIONS } from "@/lib/constants";
 
 export default async function LeaguePage(props: PageProps<"/admin/league">) {
   const sp = await props.searchParams;

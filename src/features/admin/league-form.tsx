@@ -48,7 +48,7 @@ export function LeagueForm({ league, regions, focusAccount = false }: LeagueForm
     if (!form.accountHolder.trim()) next.accountHolder = "예금주를 입력해주세요";
     setErrors(next);
     if (Object.keys(next).length > 0) return;
-    // TODO: PATCH /admin/league
+    // TODO: POST·PATCH /banks → PATCH /leagues/:id (2단계, API 명세서 §4)
     notify("저장했어요");
   };
 

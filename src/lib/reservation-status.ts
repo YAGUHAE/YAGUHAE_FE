@@ -23,3 +23,8 @@ export const RESERVATION_STATUS_LABEL: Record<ReservationStatus, string> = {
   REJECTED: "거절됨",
   NO_SHOW: "노쇼 처리",
 };
+
+/** 주최자가 처리해야 할 상태 — 입금 확인 대기 (A-6 `pending` · 셸 배지). 사용자가 「입금했어요」를 누르지 않아도 대기입니다. */
+export function isPending(status: ReservationStatus) {
+  return status === "RESERVED" || status === "PAYMENT_SUBMITTED";
+}

@@ -6,14 +6,15 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ConsoleHeader } from "@/features/admin/console-header";
 import { PaymentActions } from "@/features/admin/payment-actions";
-import { PaymentCard, reservationAmount, slotSummary } from "@/features/admin/payment-card";
+import { PaymentCard, slotSummary } from "@/features/admin/payment-card";
 import { PaymentFilters } from "@/features/admin/payment-filters";
 import { SearchParamTabs } from "@/features/shared/search-param-tabs";
 import { first, pickTab } from "@/lib/search-params";
-import { isPending, listPaymentGames, listPayments, type PaymentTab } from "@/lib/data/admin";
+import { listPaymentGames, listPayments, type PaymentTab } from "@/lib/data/admin";
 import { getServerNow } from "@/lib/data/clock";
 import { formatPrice, formatShortDate, formatShortDateTime, formatShortTimestamp } from "@/lib/format";
-import type { AdminReservation, Game } from "@/lib/types";
+import { isPending } from "@/lib/reservation-status";
+import type { AdminReservation } from "@/lib/types";
 
 const TABS = [
   { value: "pending", label: "확인 대기" },
@@ -27,9 +28,9 @@ type Section = { key: string; title?: string; items: AdminReservation[] };
 function group(tab: PaymentTab, items: AdminReservation[]): Section[] {
   if (tab === "done") return [{ key: "done", items }];
   return [
-    { key: "zero", title: "입금 불필요", items: items.filter((r) => reservationAmount(r) === 0) },
-    { key: "submitted", title: "입금했다고 알려온 건", items: items.filter((r) => reservationAmount(r) > 0 && r.status === "PAYMENT_SUBMITTED") },
-    { key: "reserved", title: "아직 입금 전", items: items.filter((r) => reservationAmount(r) > 0 && r.status === "RESERVED") },
+    { key: "zero", title: "입금 불필요", items: items.filter((r) => r.totalFee === 0) },
+    { key: "submitted", title: "입금했다고 알려온 건", items: items.filter((r) => r.totalFee > 0 && r.status === "PAYMENT_SUBMITTED") },
+    { key: "reserved", title: "아직 입금 전", items: items.filter((r) => r.totalFee > 0 && r.status === "RESERVED") },
   ];
 }
 
@@ -38,8 +39,12 @@ export default async function PaymentsPage(props: PageProps<"/admin/payments">) 
   const tab = pickTab(sp.status, TABS.map((t) => t.value));
   const gameId = first(sp.gameId) || undefined;
   const q = first(sp.q) || undefined;
-  const [payments, games, now] = await Promise.all([listPayments({ tab, gameId, q }), listPaymentGames(), getServerNow()]);
-  const gameById = new Map<string, Game>(games.map((g) => [g.id, g]));
+  // TODO: `nextCursor`로 「더 보기」 — 지금은 첫 페이지만 그립니다
+  const [{ items: payments }, games, now] = await Promise.all([
+    listPayments({ tab, gameId, q }),
+    listPaymentGames(),
+    getServerNow(),
+  ]);
   const sections = group(tab, payments).filter((s) => s.items.length > 0);
 
   return (
@@ -66,10 +71,9 @@ export default async function PaymentsPage(props: PageProps<"/admin/payments">) 
                     <span className="type-numeric-price text-text-secondary">{s.items.length}</span>
                   </h2>
                 ) : null}
-                {s.items.map((r) => {
-                  const game = gameById.get(r.gameId);
-                  return game ? <PaymentCard key={r.id} reservation={r} game={game} variant="payments" now={now} /> : null;
-                })}
+                {s.items.map((r) => (
+                  <PaymentCard key={r.id} reservation={r} variant="payments" now={now} />
+                ))}
               </section>
             ))}
           </div>
@@ -86,8 +90,7 @@ export default async function PaymentsPage(props: PageProps<"/admin/payments">) 
                     </tr>
                   ) : null}
                   {s.items.map((r) => {
-                    const game = gameById.get(r.gameId);
-                    const amount = reservationAmount(r);
+                    const amount = r.totalFee;
                     const pending = isPending(r.status);
                     return (
                       <TableRow key={r.id}>
@@ -95,7 +98,7 @@ export default async function PaymentsPage(props: PageProps<"/admin/payments">) 
                         <TableCell align="right" className="type-numeric-price text-text-default">
                           {formatPrice(amount)}
                         </TableCell>
-                        <TableCell className="type-body-sm text-text-secondary">{game ? formatShortDateTime(game.startsAt) : ""}</TableCell>
+                        <TableCell className="type-body-sm text-text-secondary">{formatShortDateTime(r.game.startsAt)}</TableCell>
                         <TableCell className="type-body-sm text-text-secondary">{formatShortTimestamp(r.createdAt)}</TableCell>
                         <TableCell>
                           {amount === 0 && pending ? <TableStatusText>입금 불필요</TableStatusText> : <StatusBadge status={r.status} />}
